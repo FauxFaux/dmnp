@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Finallylogger
+Bundle-SymbolicName: finallylogger
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.eclipse.core.runtime.model,
+ org.eclipse.jdt.core.dom,
+ org.eclipse.jface.text
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.core.resources

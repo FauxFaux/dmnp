@@ -4,8 +4,9 @@ Bundle-Name: Finallylogger
 Bundle-SymbolicName: finallylogger
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.eclipse.core.runtime.model,
- org.eclipse.jdt.core.dom,
- org.eclipse.jface.text
+Import-Package: org.eclipse.jdt.core.dom,
+ org.eclipse.jface.text,
+ org.eclipse.text.edits
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.resources
+Premain-Class: com.goeswhere.dmnp.trace4j.Poison

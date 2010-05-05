@@ -3,12 +3,10 @@ package com.goeswhere.dmnp.util;
 import static com.goeswhere.dmnp.util.FJava.filter;
 import static com.goeswhere.dmnp.util.FJava.only;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -32,6 +30,8 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import com.google.common.base.Predicate;
+
 
 
 /** Various utilities for converting source to one of the object representations. */
@@ -39,32 +39,6 @@ public class ASMWrapper {
 
 	private ASMWrapper() {
 		// statics only
-	}
-
-	/** Entire contents of the file in a String */
-	public static String consumeFile(final String filename) throws IOException {
-		return consumeFile(new FileReader(filename));
-	}
-
-	/** CLOSES THE FILEREADER */
-	public static String consumeFile(final FileReader fileReader) throws IOException {
-		final int block = 1024 * 10;
-		final StringBuilder fileData = new StringBuilder(block);
-		try {
-			final BufferedReader reader = new BufferedReader(fileReader);
-			try {
-				char[] buf = new char[block];
-				int numRead = 0;
-				while ((numRead = reader.read(buf)) != -1) {
-					fileData.append(buf, 0, numRead);
-				}
-			} finally {
-				reader.close();
-			}
-		} finally {
-			fileReader.close();
-		}
-		return fileData.toString();
 	}
 
 	/** {@link #compileToClassNodes(String, String)} with a blank name. */
@@ -86,10 +60,8 @@ public class ASMWrapper {
 
 	private static Map<String, ClassNode> compileToClassNodes(List<JavaSourceFromString> sources) throws IOException, FailedException {
 
-		final File tmpdir = File.createTempFile("javacdir", null);
+		final File tmpdir = FileUtils.createTempDir("javacdir");
 		try {
-			if (!tmpdir.delete() || !tmpdir.mkdir())
-				throw new FailedException("Couldn't make temporary directory");
 
 			final String dir = tmpdir.getAbsolutePath();
 			final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -107,7 +79,7 @@ public class ASMWrapper {
 			}
 			throw new FailedException(out.toString());
 		} finally {
-			recursivelyDelete(tmpdir);
+			FileUtils.recursivelyDelete(tmpdir);
 		}
 	}
 
@@ -128,20 +100,6 @@ public class ASMWrapper {
 			}
 		}))
 			readFiles(fi, ret);
-	}
-
-	private static void recursivelyDelete(final File dir) {
-		for (File fi : dir.listFiles())
-			if (fi.isDirectory())
-				recursivelyDelete(fi);
-			else
-				logDelete(fi);
-		logDelete(dir);
-	}
-
-	private static void logDelete(File fi) {
-		if (!fi.delete())
-			System.err.println("couldn't delete " + fi);
 	}
 
 	static ClassNode compileSingle(String name, String src) throws IOException, FailedException {
@@ -196,7 +154,7 @@ public class ASMWrapper {
 		final MethodNode m = only(filter(ASMContainers.methods(cn),
 			new Predicate<MethodNode>() {
 				@Override
-				public boolean matches(MethodNode method) {
+				public boolean apply(MethodNode method) {
 					return name.equals(method.name);
 				}
 			}

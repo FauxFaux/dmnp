@@ -1,5 +1,4 @@
 package com.goeswhere.dmnp.ue;
-import static com.goeswhere.dmnp.util.Containers.set;
 import static org.junit.Assert.assertEquals;
 
 import java.util.HashSet;
@@ -11,6 +10,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.goeswhere.dmnp.util.ASTWrapper;
+import com.google.common.collect.ImmutableSet;
 
 
 public class UETest {
@@ -21,69 +21,69 @@ public class UETest {
 
 	// positives:
 	@Test public void rethrow() {
-		assertEquals(set(), go("throw a;"));
+		assertEquals(ImmutableSet.of(), go("throw a;"));
 	}
 
 	@Test public void logged() {
-		assertEquals(set(), go("logger.warn(\"\", a);"));
+		assertEquals(ImmutableSet.of(), go("logger.warn(\"\", a);"));
 	}
 
 	@Test public void wrapped() {
-		assertEquals(set(), go("throw new RuntimeException(a);"));
-		assertEquals(set(), go("throw new RuntimeException(\"\", a);"));
+		assertEquals(ImmutableSet.of(), go("throw new RuntimeException(a);"));
+		assertEquals(ImmutableSet.of(), go("throw new RuntimeException(\"\", a);"));
 	}
 
 	@Test public void canadalae() {
-		assertEquals(set(), go(
+		assertEquals(ImmutableSet.of(), go(
 				"logger.warn(\"\", a);" +
 				"throw new RuntimeException(a.toString());"));
 	}
 
 	@Test public void caps() {
-		assertEquals(set(), goClass("class A { Logger loGGeR; void a() { " +
+		assertEquals(ImmutableSet.of(), goClass("class A { Logger loGGeR; void a() { " +
 				"try { } catch (RuntimeException e) { loGGeR.warn(\"\", e); } } }"));
 	}
 
 	// negatives:
 	@Test public void empty() {
-		assertEquals(set("a"), go(""));
+		assertEquals(ImmutableSet.of("a"), go(""));
 	}
 
 	@Test public void badlogged() {
-		assertEquals(set("a"), go("logger.warn(a);"));
+		assertEquals(ImmutableSet.of("a"), go("logger.warn(a);"));
 	}
 
 	@Test public void badthrown() {
-		assertEquals(set("a"), go("throw new RuntimeException(a.toString());"));
+		assertEquals(ImmutableSet.of("a"), go("throw new RuntimeException(a.toString());"));
 	}
 
 	// The If Hack:
 	@Test public void cfg() {
-		assertEquals(set("a"), go("if (false) logger.warn(\"\", a);"));
+		assertEquals(ImmutableSet.of("a"), go("if (false) logger.warn(\"\", a);"));
 	}
 
 	@Test public void cfgelse() {
-		assertEquals(set("a"), go("if (false) logger.warn(\"\", a); else return;"));
+		assertEquals(ImmutableSet.of("a"), go("if (false) logger.warn(\"\", a); else return;"));
 	}
 
 	@Test public void cfgonlyelse() {
-		assertEquals(set("a"), go("if (false) return; else logger.warn(\"\", a);"));
+		assertEquals(ImmutableSet.of("a"), go("if (false) return; else logger.warn(\"\", a);"));
 	}
 
 	@Test public void cfgneither() {
-		assertEquals(set(), go("if (false) return; else return; logger.warn(\"\", a);}"));
+		assertEquals(ImmutableSet.of(), go("if (false) return; else return; logger.warn(\"\", a);"));
 	}
 
 	@Test public void fieldbefore() {
-		assertEquals(set(), goClass("class A { Logger l; " + SAFE_METHOD + "}"));
+		assertEquals(ImmutableSet.of(), goClass("class A { Logger l; " + SAFE_METHOD + "}"));
 	}
 
 	@Test public void fieldafter() {
-		assertEquals(set(), goClass("class A { " + SAFE_METHOD + " Logger l; }"));
+		assertEquals(ImmutableSet.of(), goClass("class A { " + SAFE_METHOD + " Logger l; }"));
 	}
 
 	@Test public void noLogger() {
-		assertEquals(set("e"), goClass("class A { void a() { " +
+		assertEquals(ImmutableSet.of("e"), goClass("class A { void a() { " +
 				"try { } catch (RuntimeException e) { logger.warn(\"\", e); } } }"));
 	}
 
@@ -91,13 +91,13 @@ public class UETest {
 	// Questionable.. shouldn't be a problem so long as all the source compiles;
 	// it's not like anything else works on string manipulation anyway:
 	@Test public void multiClass() {
-		assertEquals(set(), goClass("class B { Logger l; } class A { " + SAFE_METHOD + " }"));
+		assertEquals(ImmutableSet.of(), goClass("class B { Logger l; } class A { " + SAFE_METHOD + " }"));
 	}
 
 
 	@Ignore("Not done yet")
 	@Test public void throworlog() throws Exception {
-		assertEquals(set(), go("if (false) throw a; logger.warn(\"\", a);}"));
+		assertEquals(ImmutableSet.of(), go("if (false) throw a; logger.warn(\"\", a);}"));
 	}
 
 	private static Set<String> go(final String body) {

@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 import com.goeswhere.dmnp.util.ASTWrapper;
+import com.goeswhere.dmnp.util.FileUtils;
 
 public class UsefulExceptionChecker {
 
@@ -91,7 +92,7 @@ public class UsefulExceptionChecker {
 	}
 
 	static void processFile(final String filename, ResultAccumulator ra) throws IOException {
-		processString(new File(filename).getName(), ASTWrapper.consumeFile(filename), ra);
+		processString(new File(filename).getName(), FileUtils.consumeFile(filename), ra);
 	}
 
 	private static void processString(final String filename, final String contents, final ResultAccumulator ra) {

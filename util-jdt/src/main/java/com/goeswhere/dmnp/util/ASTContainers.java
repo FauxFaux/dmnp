@@ -10,6 +10,7 @@ import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -93,5 +94,10 @@ public class ASTContainers {
 	@SuppressWarnings("unchecked")
 	public static List<TagElement> tags(Javadoc javadoc) {
 		return javadoc.tags();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<VariableDeclarationFragment> it(FieldDeclaration node) {
+		return node.fragments();
 	}
 }

@@ -1,0 +1,1 @@
+mvn eclipse:to-maven -DstripQualifier=true -DdeployTo=thirdparty::default::http://localhost:8080/nexus/content/repositories/thirdparty -DeclipseDir=c:\eclipse

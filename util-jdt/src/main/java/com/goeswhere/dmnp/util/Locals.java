@@ -52,7 +52,7 @@ public class Locals<T> {
 	}
 
 	public void set(String ident, T value) {
-		Locals l = this;
+		Locals<T> l = this;
 
 		while (null != l) {
 			if (l.con.containsKey(ident)) {

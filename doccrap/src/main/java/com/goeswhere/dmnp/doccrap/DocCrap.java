@@ -26,8 +26,9 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
-import com.goeswhere.dmnp.util.ASTWrapper;
 import com.goeswhere.dmnp.util.ASTContainers;
+import com.goeswhere.dmnp.util.ASTWrapper;
+import com.goeswhere.dmnp.util.FileUtils;
 import com.goeswhere.dmnp.util.TerribleImplementation;
 
 public class DocCrap {
@@ -159,7 +160,7 @@ public class DocCrap {
 	}
 
 	private static void processFile(File child) throws FileNotFoundException, IOException {
-		final String res = cleanCU(ASTWrapper.consumeFile(new FileReader(child)));
+		final String res = cleanCU(FileUtils.consumeFile(new FileReader(child)));
 		FileWriter fw = new FileWriter(child);
 		try {
 			fw.write(res);

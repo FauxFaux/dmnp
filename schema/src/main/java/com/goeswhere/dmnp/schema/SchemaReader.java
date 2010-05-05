@@ -13,6 +13,7 @@ import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.TryStatement;
 
 import com.goeswhere.dmnp.util.ASTWrapper;
+import com.goeswhere.dmnp.util.FileUtils;
 
 /** Process a Schema.java to a list of env variables.
  *
@@ -23,9 +24,14 @@ import com.goeswhere.dmnp.util.ASTWrapper;
  *   }
  * will print out:
  *  dbupdateversion4_0=2
- *  dbupdateversion4_0=3
+ *  dbupdateversion4_1=3
  */
 public class SchemaReader {
+
+	static interface Outputter {
+		void output(String s);
+	}
+
 	public static void main(String[] args) throws IOException {
 		if (args.length != 1) {
 			System.out.println("Usage: Schema.java");
@@ -33,8 +39,16 @@ public class SchemaReader {
 			throw new RuntimeException();
 		}
 
+		go(FileUtils.consumeFile(args[0]), new Outputter() {
+			@Override public void output(String s) {
+				System.out.println(s);
+			}
+		});
+	}
+
+	static void go(final String fileContents, final Outputter out) {
 		// Parse the file:
-		final CompilationUnit cu = ASTWrapper.compile(ASTWrapper.consumeFile(args[0]));
+		final CompilationUnit cu = ASTWrapper.compile(fileContents);
 
 		// Search the file for..
 		cu.accept(new ASTVisitor() {
@@ -46,7 +60,7 @@ public class SchemaReader {
 
 				// where the identifier is "interesting", and process them:
 				if (interesting(identifier))
-					System.out.println(identifier.toLowerCase() + "=" + processBlock(identifier, 0, m.getBody()));
+					out.output(identifier.toLowerCase() + "=" + processBlock(identifier, 0, m.getBody()));
 				return super.visit(m);
 			}
 

@@ -34,6 +34,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 import com.goeswhere.dmnp.util.ASMContainers;
 import com.goeswhere.dmnp.util.ASMWrapper;
+import com.google.common.annotations.VisibleForTesting;
 
 public class Poison implements ClassFileTransformer {
 
@@ -43,9 +44,9 @@ public class Poison implements ClassFileTransformer {
 	static final String LOG4J_DESC = "L" + LOG4J_CLASSSLASHES + ";";
 	private static final int PRIVATE_FINAL_STATIC = Opcodes.ACC_PRIVATE + Opcodes.ACC_FINAL + Opcodes.ACC_STATIC;
 
-    private final String prefixString;
+	private final String prefixString;
 
-    public static void main(final String[] args) throws FileNotFoundException, IOException {
+	public static void main(final String[] args) throws FileNotFoundException, IOException {
 		final String filename = args[0];
 		writeOut(filename, addLogging(makeCn(filename)));
 	}
@@ -74,9 +75,9 @@ public class Poison implements ClassFileTransformer {
 		return cn;
 	}
 
-    private static byte[] addLogging(final ClassNode cn) {
+	@VisibleForTesting static byte[] addLogging(final ClassNode cn) {
 
-        final String loggerName = ensureLoggerName(cn);
+		final String loggerName = ensureLoggerName(cn);
 
 		for (MethodNode m : ASMContainers.methods(cn)) {
 			if (m.name.startsWith("<")) // init etc.
@@ -101,13 +102,12 @@ public class Poison implements ClassFileTransformer {
 
 		final ClassWriter cw = new ClassWriter(0);
 		cn.accept(cw);
-		final byte[] byteArray = cw.toByteArray();
-        return byteArray;
-    }
+		return cw.toByteArray();
+	}
 
-    private static ClassNode makeCn(InputStream file) throws IOException, FileNotFoundException {
-        return ASMWrapper.makeCn(new ClassReader(file));
-    }
+	private static ClassNode makeCn(InputStream file) throws IOException, FileNotFoundException {
+		return ASMWrapper.makeCn(new ClassReader(file));
+	}
 
 	private static InsnList generateLoggerCall(String loggerName, String classInternalName, String message) {
 		InsnList il = new InsnList();
@@ -194,25 +194,19 @@ public class Poison implements ClassFileTransformer {
 		cn.fields.add(fieldNode);
 	}
 
-	static class MutableInt {
-		int t;
+	public Poison(String prefixString) {
+		this.prefixString = prefixString;
 	}
 
+	public static void premain(String agentArguments, Instrumentation instrumentation) {
+		instrumentation.addTransformer(new Poison(agentArguments));
+	}
 
-	public Poison(String prefixString) {
-        this.prefixString = prefixString;
-    }
-
-    public static void premain(String agentArguments, Instrumentation instrumentation) {
-        instrumentation.addTransformer(new Poison(agentArguments));
-    }
-
-    @Override
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-            ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        if (!className.startsWith(prefixString))
-            return classfileBuffer;
-        return addLogging(ASMWrapper.makeCn(new ClassReader(classfileBuffer)));
-    }
+	@Override public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+		if (!className.startsWith(prefixString))
+			return classfileBuffer;
+		return addLogging(ASMWrapper.makeCn(new ClassReader(classfileBuffer)));
+	}
 
 }

@@ -15,6 +15,7 @@
 		<module>util-asm</module>
 		<module>util-jdt</module>
 		<module>conclass</module>
+		<module>dumclosed</module>
 		<module>doccrap</module>
 		<module>ue</module>
 		<module>schema</module>

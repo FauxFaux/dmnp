@@ -8,10 +8,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 import com.goeswhere.dmnp.util.ASTWrapper;
 import com.goeswhere.dmnp.util.FileUtils;
@@ -99,17 +97,9 @@ public class UsefulExceptionChecker {
 		final CompilationUnit cu = ASTWrapper.compile(contents);
 		final Reporter rep = new Reporter() {
 			@Override public void report(CatchClause cc) {
-				ASTNode n = cc;
-				while (n != null && !(n instanceof MethodDeclaration))
-					n = n.getParent();
-
-				final String method = n != null
-						? ASTWrapper.signature((MethodDeclaration) n)
-						: "[unknown method]";
-
 				ra.accumulate(cc.getException()
 						+ " unused at (" + filename + ":" + cu.getLineNumber(cc.getStartPosition())
-						+ ") in " + method);
+						+ ") in " + ASTWrapper.methodName(cc));
 			}
 		};
 		VisitCatchClauses.accept(cu, rep);

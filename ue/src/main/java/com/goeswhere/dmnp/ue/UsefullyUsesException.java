@@ -63,7 +63,7 @@ class UsefullyUsesException extends ASTVisitor {
 		final Statement elseS = node.getElseStatement();
 		// Either the "then" statement doesn't do anything useful, or the else statement also doesn't.
 		if (!usefullyUsesName(node.getThenStatement()) ^ (null == elseS || !usefullyUsesName(elseS))) {
-			notOnAllIfPaths  = true;
+			notOnAllIfPaths = true;
 		}
 		return super.visit(node);
 	}

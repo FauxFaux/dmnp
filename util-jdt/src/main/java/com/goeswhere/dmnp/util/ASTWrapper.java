@@ -6,10 +6,12 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Type;
 
 
 /** Various utilities for converting source to one of the object representations. */
@@ -58,8 +60,10 @@ public class ASTWrapper {
 
 	/** Full signature of a method, including annotations, modifiers, name, parameters */
 	public static String signature(final MethodDeclaration d) {
+		// null on constructors etc.
+		final Type rt = d.getReturnType2();
 		return FJava.intersperse(d.modifiers(), " ")
-			+ " " + d.getReturnType2()
+			+ (null != rt ? " " + rt : "")
 			+ " " + d.getName().getIdentifier()
 			+ "(" + FJava.intersperse(d.parameters(), ", ") + ")";
 	}
@@ -83,5 +87,15 @@ public class ASTWrapper {
 			throw new IllegalArgumentException(classBody + " should contain only one method");
 
 		return ret;
+	}
+
+	public static String methodName(ASTNode cc) {
+		ASTNode n = cc;
+		while (n != null && !(n instanceof MethodDeclaration))
+			n = n.getParent();
+
+		return n != null
+				? ASTWrapper.signature((MethodDeclaration) n)
+				: "[unknown method]";
 	}
 }

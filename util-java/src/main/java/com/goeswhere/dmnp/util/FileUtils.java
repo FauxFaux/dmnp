@@ -88,4 +88,8 @@ public class FileUtils {
 			fos.close();
 		}
 	}
+
+	public static String consumeFile(File f) throws IOException {
+		return consumeFile(new FileReader(f));
+	}
 }

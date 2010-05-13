@@ -28,7 +28,9 @@ public class BetweenIterable<T> implements Iterable<T> {
 
 		return new AbstractIterator<T>() {
 			@Override protected T computeNext() {
-				final T next = it.next();
+				if (!it.hasNext())
+				    return endOfData();
+			    final T next = it.next();
 				if (next.equals(end))
 					return endOfData();
 				return next;

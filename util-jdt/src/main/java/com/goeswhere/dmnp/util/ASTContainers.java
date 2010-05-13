@@ -13,6 +13,7 @@ import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -114,11 +115,15 @@ public class ASTContainers {
 	 * */
 	public static Iterable<Statement> statementsBetweenFlat(ASTNode one, ASTNode two) {
 		final Pair<ASTNode, ASTNode> parents = sharedParent(one, two);
-		final List<Statement> lis = ASTContainers.it((Block) parents.t.getParent());
+		final List<Statement> lis = ASTContainers.it((Block) clean(parents.t).getParent());
 		return BetweenIterable.of(lis, (Statement)parents.t, (Statement)parents.u);
 	}
 
-	/** Find {@code pair(a,b)} such that {@code a.getParent() == b.getParent()} and:
+	private static ASTNode clean(ASTNode t) {
+        return t.getParent() instanceof IfStatement ? clean(t.getParent()) : t;
+    }
+
+    /** Find {@code pair(a,b)} such that {@code a.getParent() == b.getParent()} and:
 	 * @param one is, or has an ancestor of, {@code a}
 	 * @param two is, or has an ancestor of, {@code b}
 	 * @throws IllegalArgumentException if a pair can't be found.

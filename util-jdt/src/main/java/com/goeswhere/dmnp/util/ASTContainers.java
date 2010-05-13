@@ -120,10 +120,10 @@ public class ASTContainers {
 	}
 
 	private static ASTNode clean(ASTNode t) {
-        return t.getParent() instanceof IfStatement ? clean(t.getParent()) : t;
-    }
+		return t.getParent() instanceof IfStatement ? clean(t.getParent()) : t;
+	}
 
-    /** Find {@code pair(a,b)} such that {@code a.getParent() == b.getParent()} and:
+	/** Find {@code pair(a,b)} such that {@code a.getParent() == b.getParent()} and:
 	 * @param one is, or has an ancestor of, {@code a}
 	 * @param two is, or has an ancestor of, {@code b}
 	 * @throws IllegalArgumentException if a pair can't be found.

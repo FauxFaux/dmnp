@@ -17,6 +17,7 @@
 		<module>conclass</module>
 		<module>dumclosed</module>
 		<module>doccrap</module>
+		<module>expr</module>
 		<module>ue</module>
 		<module>schema</module>
 		<module>trace4j</module>

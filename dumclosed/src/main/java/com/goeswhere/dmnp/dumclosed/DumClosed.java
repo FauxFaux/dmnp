@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -32,11 +33,11 @@ public class DumClosed {
 	private final String type;
 	private final String method;
 
-	private class Marker extends ASTVisitor {
-		private final Map<String, Badness> names;
-		private final Badness level;
+	private class Marker<T> extends ASTVisitor {
+		private final Map<String, T> names;
+		private final T level;
 
-		private Marker(Map<String, Badness> names, Badness level) {
+		private Marker(Map<String, T> names, T level) {
 			this.names = names;
 			this.level = level;
 		}
@@ -54,8 +55,25 @@ public class DumClosed {
 		}
 	}
 
+	<U> Marker<U> markerOf(Map<String, U> names, U what) {
+		return new Marker<U>(names, what);
+	}
+
 	private static enum Badness {
-		REALLY, QUITE, NOT
+		/** {@code X x = ; ...;} falls out of scope without close(), no assumption, just wrong. */
+		REALLY,
+
+		/** {@code X x = ; ...; x.close();} assumes that the code completes normally. */
+		QUITE,
+
+		/** <code>X x = ; ...; try { ...; } finally { x.close(); }</code>, assumption is that pre-code isn't dangerous. */
+		SLIGHTLY,
+
+		/** <code>X x = ; try { ...; } finally { ...; x.close(); }</code>, assumption is that the other code in the finally completes normally. */
+		ARGUABLY,
+
+		/** <code> X x = ; try { ...; } finally { x.close(); }</code>, perfect. */
+		NOT,
 	}
 
 	public DumClosed(String type, String method) {
@@ -99,7 +117,7 @@ public class DumClosed {
 			cu.accept(new ASTVisitor() {
 				@Override public boolean visit(final MethodDeclaration meth) {
 					meth.accept(new ASTVisitor() {
-						@Override public boolean visit(VariableDeclarationStatement ty) {
+						@Override public boolean visit(final VariableDeclarationStatement ty) {
 							if (!(ty.getType() instanceof SimpleType) || !isRS((SimpleType) ty.getType()))
 								return true;
 
@@ -107,7 +125,7 @@ public class DumClosed {
 							for (VariableDeclarationFragment a : ASTContainers.it(ty))
 								names.put(a.getName().getIdentifier(), Badness.REALLY);
 
-							meth.accept(new Marker(names, Badness.QUITE));
+							meth.accept(markerOf(names, Badness.QUITE));
 
 							meth.accept(new ASTVisitor() {
 								@Override public boolean visit(TryStatement tc) {
@@ -115,7 +133,20 @@ public class DumClosed {
 									if (null == fin)
 										return true;
 
-									fin.accept(new Marker(names, Badness.NOT));
+									final List<Statement> it = ASTContainers.it(fin);
+
+									if (it.isEmpty())
+										return true;
+
+									fin.accept(markerOf(names, Badness.ARGUABLY));
+
+									it.get(0).accept(markerOf(names, Badness.NOT));
+
+									for (Statement s : ASTContainers.statementsBetweenFlat(ty, tc))
+										if (!safeStatement(s))
+											for (Entry<String, Badness> a : names.entrySet())
+												a.setValue(Badness.SLIGHTLY);
+
 									return true;
 								}
 							});
@@ -167,5 +198,15 @@ public class DumClosed {
 
 	private boolean isClose(MethodInvocation inv) {
 		return inv.getName().getIdentifier().equals(method);
+	}
+
+	private static boolean safeStatement(Statement s) {
+		if (s instanceof VariableDeclarationStatement) {
+			for (VariableDeclarationFragment f : ASTContainers.it((VariableDeclarationStatement)s))
+				if (null != f.getInitializer())
+					return false;
+			return true;
+		}
+		return false;
 	}
 }

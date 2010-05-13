@@ -1,5 +1,6 @@
 package com.goeswhere.dmnp.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -23,6 +24,7 @@ import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+
 
 public class ASTContainers {
 
@@ -99,5 +101,53 @@ public class ASTContainers {
 	@SuppressWarnings("unchecked")
 	public static List<VariableDeclarationFragment> it(FieldDeclaration node) {
 		return node.fragments();
+	}
+
+	/** Examine the statements between two statements' ancestors,
+	 * as defined by {@link #sharedParent(ASTNode, ASTNode)}.
+	 *
+	 * e.g. <pre> int tis; int bar;
+	 * try { foo(); }
+	 * finally { int baz; int that; }</pre>
+	 *
+	 * ... for {@code tis} and {@code that} examines just {@code int bar;}.
+	 * */
+	public static Iterable<Statement> statementsBetweenFlat(ASTNode one, ASTNode two) {
+		final Pair<ASTNode, ASTNode> parents = sharedParent(one, two);
+		final List<Statement> lis = ASTContainers.it((Block) parents.t.getParent());
+		return BetweenIterable.of(lis, (Statement)parents.t, (Statement)parents.u);
+	}
+
+	/** Find {@code pair(a,b)} such that {@code a.getParent() == b.getParent()} and:
+	 * @param one is, or has an ancestor of, {@code a}
+	 * @param two is, or has an ancestor of, {@code b}
+	 * @throws IllegalArgumentException if a pair can't be found.
+	 */
+	public static Pair<ASTNode, ASTNode> sharedParent(ASTNode one, ASTNode two) {
+		if (one.getParent().equals(two.getParent()))
+			return Pair.of(one, two);
+		else {
+			return sharedParentDeep(one, two);
+		}
+	}
+
+	private static Pair<ASTNode, ASTNode> sharedParentDeep(ASTNode one, ASTNode two) {
+		final List<ASTNode> tree = new ArrayList<ASTNode>();
+		ASTNode oee = one;
+		tree.add(oee);
+		while (null != oee)
+			tree.add(oee = oee.getParent());
+		ASTNode tee = two;
+		while (null != tee) {
+			final ASTNode tmp = tee.getParent();
+			final int idx = tree.indexOf(tmp);
+			if (-1 != idx)
+				return Pair.of(tree.get(idx - 1), tee);
+			tee = tmp;
+		}
+
+		throw new IllegalArgumentException("Nodes don't share a parent! "
+				+ Containers.classAndToString(oee) + " // "
+				+ Containers.classAndToString(tee));
 	}
 }

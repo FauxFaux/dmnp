@@ -18,4 +18,8 @@ public class Containers {
 			m.put(func.apply(v), v);
 		return m;
 	}
+
+	public static String classAndToString(Object p) {
+		return p == null ? String.valueOf(null) : p.getClass() + ": " + p;
+	}
 }

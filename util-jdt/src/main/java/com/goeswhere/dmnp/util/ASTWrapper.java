@@ -18,11 +18,15 @@ import org.eclipse.jdt.core.dom.Type;
 public class ASTWrapper {
 
 	private ASTWrapper() {
-		// statics only
+		throw new AssertionError();
 	}
 
 	/** Return the Java 5 CU for the string. */
 	 public static CompilationUnit compile(String c) {
+		return compile(c, null, null);
+	}
+
+	private static ASTParser getParser(String c) {
 		final ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setSource(c.toCharArray());
 
@@ -34,8 +38,7 @@ public class ASTWrapper {
 		ops.put(JavaCore.COMPILER_SOURCE, "1.6");
 
 		parser.setCompilerOptions(ops);
-
-		return compile(parser);
+		return parser;
 	}
 
 	private static CompilationUnit compile(final ASTParser parser) {
@@ -45,15 +48,16 @@ public class ASTWrapper {
 		return cu;
 	}
 
-	/** Return the Java 5 CU for the string. */
+	/** Return the Java 5 CU for the string, with bindings and shiz. */
 	public static CompilationUnit compile(String c, String[] classpath, String[] source) {
-		final ASTParser parser = ASTParser.newParser(AST.JLS3);
-		parser.setSource(c.toCharArray());
-		parser.setResolveBindings(true);
-		parser.setUnitName("ThisIsApparentlyIrrelevantButCompulsory");
-		parser.setEnvironment(classpath, source, null, true);
-		parser.setBindingsRecovery(true);
-		parser.setStatementsRecovery(true);
+		final ASTParser parser = getParser(c);
+		if (null != classpath && null != source) {
+			parser.setResolveBindings(true);
+			parser.setUnitName("ThisIsApparentlyIrrelevantButCompulsory");
+			parser.setEnvironment(classpath, source, null, true);
+			parser.setBindingsRecovery(true);
+			parser.setStatementsRecovery(true);
+		}
 		return compile(parser);
 	}
 
@@ -70,12 +74,25 @@ public class ASTWrapper {
 
 
 	public static MethodDeclaration extractSingleMethod(final String classBody) {
-		CompilationUnit cu = compile("class A { " + classBody + " }");
+		return extractSingleMethod(classBody, null, null);
+	}
+
+	public static MethodDeclaration extractSingleMethod(final String classBody, String[] classpath, String[] source) {
+		return extractMethodImpl(classBody, classpath, source, ExtractMethodMode.SINGLE);
+	}
+
+	private static enum ExtractMethodMode {
+		SINGLE, LAST
+	}
+
+	private static MethodDeclaration extractMethodImpl(final String classBody,
+			String[] classpath, String[] source, final ExtractMethodMode single) {
+		CompilationUnit cu = compile("class A { " + classBody + " }", classpath, source);
 		final Mutable<MethodDeclaration> mut = new Mutable<MethodDeclaration>();
 		cu.accept(new ASTVisitor() {
 			@Override public boolean visit(MethodDeclaration m) {
 				final MethodDeclaration old = mut.get();
-				if (null != old)
+				if (single == ExtractMethodMode.SINGLE && null != old)
 					throw new IllegalArgumentException(classBody + " contains at least " + old + " and " + m);
 				mut.set(m);
 				return super.visit(m);
@@ -87,6 +104,14 @@ public class ASTWrapper {
 			throw new IllegalArgumentException(classBody + " should contain only one method");
 
 		return ret;
+	}
+
+	public static MethodDeclaration extractLastMethod(final String classBody, String[] classpath, String[] source) {
+		return extractMethodImpl(classBody, classpath, source, ExtractMethodMode.LAST);
+	}
+
+	public static MethodDeclaration extractLastMethod(final String classBody) {
+		return extractLastMethod(classBody, null, null);
 	}
 
 	public static String methodName(ASTNode cc) {

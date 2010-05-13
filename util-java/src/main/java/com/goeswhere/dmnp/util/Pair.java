@@ -24,14 +24,13 @@ public class Pair<T, U> {
 		return t.hashCode() + 31 * u.hashCode();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 		if (!(obj instanceof Pair))
 			return false;
 
-		final Pair<T, U> pair = (Pair<T, U>)obj;
+		final Pair<?, ?> pair = (Pair<?, ?>)obj;
 		return Objects.equal(pair.t, t)
 			&& Objects.equal(pair.u, u);
 	}

@@ -1,5 +1,6 @@
 package com.goeswhere.dmnp.util;
 
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.Function;
@@ -22,4 +23,21 @@ public class Containers {
 	public static String classAndToString(Object p) {
 		return p == null ? String.valueOf(null) : p.getClass() + ": " + p;
 	}
+
+	public static String hrList(final List<?> el, final String and) {
+		final StringBuilder sb = new StringBuilder(10 * el.size());
+		for (int i = 0; i < el.size(); ++i) {
+			sb.append(el.get(i));
+			if (i == el.size() - 2)
+				sb.append(and);
+			else if (i != el.size() - 1)
+				sb.append(", ");
+		}
+		return sb.toString();
+	}
+
+	public static String hrList(final List<?> el) {
+		return hrList(el, " and ");
+	}
+
 }

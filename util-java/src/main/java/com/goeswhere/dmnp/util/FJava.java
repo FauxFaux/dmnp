@@ -9,6 +9,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 
@@ -44,11 +46,7 @@ public class FJava {
 	}
 
 	public static <R, T> Iterable<R> concatMap(Iterable<T> col, Function<T, Iterable<R>> f) {
-		final List<R> ret = new ArrayList<R>();
-		for (T t : col)
-			for (R r : f.apply(t))
-				ret.add(r);
-		return ret;
+		return Iterables.concat(Iterables.transform(col, f));
 	}
 
 	public static <T> Iterable<T> flattenToSet(final Multimap<T, T> map) {
@@ -58,8 +56,24 @@ public class FJava {
 			.build();
 	}
 
-	@TerribleImplementation
 	public static <T> Iterable<T> cons(T t, Iterable<T> with) {
-		return ImmutableList.<T>builder().add(t).addAll(with).build();
+		return Iterables.concat(ImmutableList.of(t), with);
 	}
+
+	/** Repeatedly apply the function to it's own outputs until it starts
+	 * returning nothing and gather all the intermediates.
+	 *<pre>
+	 * f(x)=y,z; f(y)=q; f(z)= ; f(q)=r
+	 * reducer(x,f) -> [x,y,z,q,r]
+	 *</pre>
+	 */
+	@TerribleImplementation
+	public static <R> Iterable<R> reducer(R in, Function<R, Iterable<R>> func) {
+		final List<R> ret = Lists.newArrayList();
+		ret.add(in);
+		for (R r : func.apply(in))
+			Iterables.addAll(ret, reducer(r, func));
+		return ret;
+	}
+
 }

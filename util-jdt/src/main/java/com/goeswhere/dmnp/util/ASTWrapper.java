@@ -41,10 +41,21 @@ public class ASTWrapper {
 		return parser;
 	}
 
-	private static CompilationUnit compile(final ASTParser parser) {
+	/** This is a bogglingly ugly hack.  On compiler-generated errors, the compile
+	 * method will throw this, <b>which contains it's return value</b>. */
+	public static class HadProblems extends IllegalArgumentException {
+		public final CompilationUnit cu;
+
+		public HadProblems(CompilationUnit cu) {
+			super("Compile had problems: " + Arrays.toString(cu.getProblems()));
+			this.cu = cu;
+		}
+	}
+
+	private static CompilationUnit compile(final ASTParser parser) throws HadProblems {
 		final CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 		if (cu.getProblems().length != 0)
-			throw new IllegalArgumentException(Arrays.toString(cu.getProblems()));
+			throw new HadProblems(cu);
 		return cu;
 	}
 

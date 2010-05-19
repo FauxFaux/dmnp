@@ -103,8 +103,9 @@ class SList<T> implements
 		while (us.hasNext() && them.hasNext()) {
 			final T un = us.next(), tn = them.next();
 			if (un instanceof Comparable<?>) {
+				@SuppressWarnings("unchecked")
 				final int comp =
-					((Comparable)un).compareTo(tn);
+					((Comparable<T>)un).compareTo(tn);
 				if (0 != comp)
 					return comp;
 			}

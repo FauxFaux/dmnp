@@ -7,9 +7,17 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
+import com.google.common.base.Function;
+
 public class FileUtils {
 
 	private final static Charset DEFAULT_ENCODING = Charset.forName("UTF-8");
+
+	public static final Function<File, String> ABSOLUTE_PATH = new Function<File, String>() {
+		@Override public String apply(File f) {
+			return f.getAbsolutePath();
+		}
+	};
 
 	private FileUtils() {
 		throw new AssertionError();
@@ -56,13 +64,17 @@ public class FileUtils {
 	}
 
 	public static Iterable<File> javaFilesIn(final String path) {
+		return filesIn(path, "java");
+	}
+
+	public static Iterable<File> filesIn(final String path, final String ext) {
 		return new Iterable<File>() {
 			@SuppressWarnings("unchecked")
 			@Override
 			public java.util.Iterator<File> iterator() {
 				return org.apache.commons.io.FileUtils.iterateFiles(
 						new File(path),
-						new String[] { "java" },
+						new String[] { ext },
 						true);
 			}
 		};

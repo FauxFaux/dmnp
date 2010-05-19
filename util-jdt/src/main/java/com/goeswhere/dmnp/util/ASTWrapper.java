@@ -36,6 +36,9 @@ public class ASTWrapper {
 
 		ops.put(JavaCore.COMPILER_COMPLIANCE, "1.6");
 		ops.put(JavaCore.COMPILER_SOURCE, "1.6");
+		ops.put(JavaCore.COMPILER_PB_DEPRECATION, "ignore");
+		ops.put(JavaCore.COMPILER_PB_UNUSED_IMPORT, "ignore");
+		ops.put(JavaCore.COMPILER_PB_MAX_PER_UNIT, "0");
 
 		parser.setCompilerOptions(ops);
 		return parser;
@@ -60,11 +63,15 @@ public class ASTWrapper {
 	}
 
 	/** Return the Java 5 CU for the string, with bindings and shiz. */
-	public static CompilationUnit compile(String c, String[] classpath, String[] source) {
-		final ASTParser parser = getParser(c);
+	public static CompilationUnit compile(String src, String[] classpath, String[] source) {
+		return compile(src, "OnlyNecessaryForPublicClasses", classpath, source);
+	}
+
+	public static CompilationUnit compile(String src, String filename, String[] classpath, String[] source) {
+		final ASTParser parser = getParser(src);
 		if (null != classpath && null != source) {
 			parser.setResolveBindings(true);
-			parser.setUnitName("ThisIsApparentlyIrrelevantButCompulsory");
+			parser.setUnitName(filename);
 			parser.setEnvironment(classpath, source, null, true);
 			parser.setBindingsRecovery(true);
 			parser.setStatementsRecovery(true);

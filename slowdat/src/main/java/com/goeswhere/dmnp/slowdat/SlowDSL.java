@@ -1,8 +1,14 @@
 package com.goeswhere.dmnp.slowdat;
 
+import static com.goeswhere.dmnp.util.FileUtils.consumeFile;
+import static com.goeswhere.dmnp.util.FileUtils.writeFile;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -28,9 +34,14 @@ import org.eclipse.text.edits.TextEdit;
 import com.goeswhere.dmnp.util.ASTContainers;
 import com.goeswhere.dmnp.util.ASTWrapper;
 import com.goeswhere.dmnp.util.ASTWrapper.HadProblems;
+import com.goeswhere.dmnp.util.FJava;
+import com.goeswhere.dmnp.util.FileUtils;
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
@@ -40,39 +51,53 @@ import com.google.common.collect.Sets;
 public class SlowDSL {
 
 	private static final ImmutableSet<String> BORING_NULLARY_CONSTRUCTORS =
-		ImmutableSet.of("java.util.Date");
+		ImmutableSet.of("java.util.Date",
+				"java.util.StringBuilder",
+				"java.util.StringBuffer");
 
-	public static void main(String[] args) {
-		System.out.println(new SlowDSL(args, args).go(
-				"import java.util.Date;\n" +
-				"class Const {\n" +
-				" public static final String HATE = \"I hate this\";\n" +
-				"}\n" +
-				"class A {\n" +
-				" void foo() {\n" +
-				"  int a = 0;\n" +
-				"  long b = 7;\n" + // dead store
-				"  String c = \"hi\" + \"ho\";\n" + // dead store
-				"  Date d = new Date();\n" + // dead store
-				"  String e = \"add\" + Const.HATE;\n" + // dead store
-				"  e = \"\";\n" +
-				"  e.hashCode();\n" +
-				"  String f = e;\n" + // dead store
-				"  f = \"\";\n" +
-				"  f.hashCode();\n" +
-				"  d = new Date();\n" +
-				"  b = d.getTime();\n" +
-				"  System.out.println(a + b + c);\n" +
-				"}}"));
-		/**
-		 * class A {
-		 *  void foo() {
-		 *  int a = 0;
-		 *  int b;
-		 *  b = 5;
-		 *  System.out.println(a + b);
-		 * }}
-		 */
+	public static void main(String[] args) throws IOException {
+		if (3 != args.length) {
+			System.err.println("Usage: classpath sourcepath file");
+			return;
+		}
+
+		final String[] cp = Iterables.toArray(FJava.concatMap(Arrays.asList(sysSplit(args[0])),
+				new Function<String, Iterable<String>>() {
+					@Override public Iterable<String> apply(String from) {
+						if (!from.endsWith("*"))
+							return ImmutableList.of(from);
+						final String withoutStar = from.substring(0, from.length() - 1);
+						return Iterables.transform(FileUtils.filesIn(withoutStar, "jar"), FileUtils.ABSOLUTE_PATH);
+					}}), String.class);
+
+		final String[] sourcePath = sysSplit(args[1]);
+		final String path = args[2];
+
+		final File f = new File(path);
+		for (File file : f.isDirectory() ? FileUtils.javaFilesIn(path) : Arrays.asList(f)) {
+			System.out.print("Processing " + file.getName() + ".");
+			try {
+				fixInPlace(file.getAbsolutePath(), cp, sourcePath);
+			} catch (RuntimeException e) {
+				e.printStackTrace();
+			}
+			System.out.println(".  Done.");
+		}
+	}
+
+	private static void fixInPlace(final String file, final String[] cp, final String[] sourcePath) throws IOException {
+		writeFile(new File(file), new SlowDSL(cp, sourcePath, unitName(file)).go(consumeFile(file)));
+	}
+
+	private static String unitName(String path) {
+		final String f = new File(path).getName();
+		final String ext = ".java";
+		Preconditions.checkArgument(f.endsWith(ext));
+		return f.substring(0, f.length() - ext.length());
+	}
+
+	private static String[] sysSplit(final String string) {
+		return string.split(Pattern.quote(File.pathSeparator));
 	}
 
 	private static final Function<ITypeBinding, String> TYPEBINDING_QUALIFIED_NAME =
@@ -84,14 +109,23 @@ public class SlowDSL {
 
 	private final String[] classpath;
 	private final String[] sourcepath;
+	private final String unitName;
 
-	public SlowDSL(String[] classpath, String[] sourcepath) {
+	public SlowDSL(String[] classpath, String[] sourcepath, String unitName) {
 		this.classpath = classpath;
 		this.sourcepath = sourcepath;
+		this.unitName = unitName;
 	}
 
 	private CompilationUnit compile(String s) {
-		return ASTWrapper.compile(s, classpath, sourcepath);
+		try {
+			return ASTWrapper.compile(s, unitName, classpath, sourcepath);
+		} catch (HadProblems p) {
+			for (IProblem prob : p.cu.getProblems())
+				if (!prob.isWarning())
+					throw p;
+			return p.cu;
+		}
 	}
 
 	private static boolean doesNothingUseful(final Expression e) {
@@ -140,6 +174,9 @@ public class SlowDSL {
 		@Override public boolean visit(VariableDeclarationStatement node) {
 			for (VariableDeclarationFragment a : ASTContainers.it(node)) {
 				final Expression i = a.getInitializer();
+				if (null == i)
+					continue;
+
 				if (doesNothingUseful(i)) {
 					final IVariableBinding bi = a.resolveBinding();
 					if (skips.contains(strignature(bi)))
@@ -151,8 +188,12 @@ public class SlowDSL {
 		}
 	}
 
+	private final Set<Set<String>> seenBrokens = Sets.newHashSet();
+
 	private String go(final String origsrc, final Set<String> skip) {
 		final String newsrc = mutilateSource(origsrc, skip);
+
+		System.out.print(",");
 
 		final Set<String> currentlyBroken = Sets.newHashSet();
 
@@ -162,7 +203,7 @@ public class SlowDSL {
 		} catch (HadProblems p) {
 			final SetMultimap<String, Integer> e = HashMultimap.create();
 			for (IProblem a : p.cu.getProblems()) {
-				if (IProblem.UninitializedLocalVariable != a.getID())
+				if (!a.isWarning() && IProblem.UninitializedLocalVariable != a.getID())
 					throw p;
 				e.put(a.getArguments()[0], a.getSourceStart());
 			}
@@ -178,8 +219,12 @@ public class SlowDSL {
 			});
 		}
 
-		if (currentlyBroken.equals(skip))
+		System.out.print(".");
+
+		if (seenBrokens.contains(currentlyBroken))
 			throw new RuntimeException("Didn't work, still have " + currentlyBroken);
+
+		seenBrokens.add(currentlyBroken);
 
 		return go(origsrc, ImmutableSet.copyOf(currentlyBroken));
 	}
@@ -188,8 +233,7 @@ public class SlowDSL {
 		final CompilationUnit cu = compile(src);
 		cu.recordModifications();
 		cu.accept(new InitialiserStripper(skip));
-		final String d = rewrite(src, cu);
-		return d;
+		return rewrite(src, cu);
 	}
 
 	private String rewrite(final String src, final CompilationUnit changes) {
@@ -206,7 +250,7 @@ public class SlowDSL {
 	}
 
 	private static String strignature(final IVariableBinding vb) {
-		return signature(vb.getDeclaringMethod()) + ":" + vb.getVariableId();
+		return vb.getName() + ":" + vb.getVariableId() + ":" + signature(vb.getDeclaringMethod());
 	}
 
 	private static String signature(IMethodBinding from) {

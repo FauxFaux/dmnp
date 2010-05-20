@@ -33,9 +33,9 @@ import org.eclipse.text.edits.TextEdit;
 
 import com.goeswhere.dmnp.util.ASTContainers;
 import com.goeswhere.dmnp.util.ASTWrapper;
-import com.goeswhere.dmnp.util.ASTWrapper.HadProblems;
 import com.goeswhere.dmnp.util.FJava;
 import com.goeswhere.dmnp.util.FileUtils;
+import com.goeswhere.dmnp.util.ASTWrapper.HadProblems;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
@@ -203,7 +203,9 @@ public class SlowDSL {
 		} catch (HadProblems p) {
 			final SetMultimap<String, Integer> e = HashMultimap.create();
 			for (IProblem a : p.cu.getProblems()) {
-				if (!a.isWarning() && IProblem.UninitializedLocalVariable != a.getID())
+				if (!a.isError())
+					continue;
+				if (IProblem.UninitializedLocalVariable != a.getID())
 					throw p;
 				e.put(a.getArguments()[0], a.getSourceStart());
 			}
@@ -250,7 +252,9 @@ public class SlowDSL {
 	}
 
 	private static String strignature(final IVariableBinding vb) {
-		return vb.getName() + ":" + vb.getVariableId() + ":" + signature(vb.getDeclaringMethod());
+		final IMethodBinding meth = vb.getDeclaringMethod();
+		return vb.getName() + ":" + vb.getVariableId() + ":" +
+			(null == meth ? "[outside method]" : signature(meth));
 	}
 
 	private static String signature(IMethodBinding from) {

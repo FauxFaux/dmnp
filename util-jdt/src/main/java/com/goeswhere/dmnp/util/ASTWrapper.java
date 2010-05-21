@@ -3,6 +3,7 @@ package com.goeswhere.dmnp.util;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -30,18 +31,24 @@ public class ASTWrapper {
 		final ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setSource(c.toCharArray());
 
-		@SuppressWarnings("unchecked")
 		final Map<String, String> ops =
-			new HashMap<String, String>(JavaCore.getOptions());
+			new HashMap<String, String>(javaCoreOptions());
+
+		for (Entry<String, String> a : ops.entrySet())
+				if ("warning".equals(a.getValue()))
+					a.setValue("ignore");
 
 		ops.put(JavaCore.COMPILER_COMPLIANCE, "1.6");
 		ops.put(JavaCore.COMPILER_SOURCE, "1.6");
-		ops.put(JavaCore.COMPILER_PB_DEPRECATION, "ignore");
-		ops.put(JavaCore.COMPILER_PB_UNUSED_IMPORT, "ignore");
 		ops.put(JavaCore.COMPILER_PB_MAX_PER_UNIT, "0");
 
 		parser.setCompilerOptions(ops);
 		return parser;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Map<String, String> javaCoreOptions() {
+		return JavaCore.getOptions();
 	}
 
 	/** This is a bogglingly ugly hack.  On compiler-generated errors, the compile

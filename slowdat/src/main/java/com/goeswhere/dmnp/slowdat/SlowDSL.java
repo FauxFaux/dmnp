@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
@@ -22,6 +23,7 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -33,9 +35,9 @@ import org.eclipse.text.edits.TextEdit;
 
 import com.goeswhere.dmnp.util.ASTContainers;
 import com.goeswhere.dmnp.util.ASTWrapper;
+import com.goeswhere.dmnp.util.ASTWrapper.HadProblems;
 import com.goeswhere.dmnp.util.FJava;
 import com.goeswhere.dmnp.util.FileUtils;
-import com.goeswhere.dmnp.util.ASTWrapper.HadProblems;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
@@ -47,7 +49,6 @@ import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
 
-// XXX static {}
 public class SlowDSL {
 
 	private static final ImmutableSet<String> BORING_NULLARY_CONSTRUCTORS =
@@ -203,8 +204,6 @@ public class SlowDSL {
 		} catch (HadProblems p) {
 			final SetMultimap<String, Integer> e = HashMultimap.create();
 			for (IProblem a : p.cu.getProblems()) {
-				if (!a.isError())
-					continue;
 				if (IProblem.UninitializedLocalVariable != a.getID())
 					throw p;
 				e.put(a.getArguments()[0], a.getSourceStart());
@@ -212,7 +211,7 @@ public class SlowDSL {
 
 			p.cu.accept(new ASTVisitor() {
 				@Override public boolean visit(SimpleName node) {
-					if (e.get(node.getIdentifier()).remove(node.getStartPosition())) {
+					if (e.get(node.getIdentifier()).remove(getRealErrorReportPosition(node))) {
 						final IVariableBinding vb = (IVariableBinding) node.resolveBinding();
 						currentlyBroken.add(strignature(vb));
 					}
@@ -227,8 +226,19 @@ public class SlowDSL {
 			throw new RuntimeException("Didn't work, still have " + currentlyBroken);
 
 		seenBrokens.add(currentlyBroken);
+		return go(origsrc, ImmutableSet.<String>builder()
+				.addAll(currentlyBroken)
+				.addAll(skip)
+				.build());
+	}
 
-		return go(origsrc, ImmutableSet.copyOf(currentlyBroken));
+	/** Problems in {@code ((var))} are reported at
+	 * the first open bracket, not on {@code var} itself. */
+	private int getRealErrorReportPosition(final SimpleName sn) {
+		ASTNode test = sn;
+		while (test.getParent() instanceof ParenthesizedExpression)
+			test = test.getParent();
+		return test.getStartPosition();
 	}
 
 	private String mutilateSource(final String src, final Set<String> skip) {

@@ -1,7 +1,10 @@
 package com.goeswhere.dmnp.util;
 
+import static com.goeswhere.dmnp.util.ASTContainers.it;
+
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -10,9 +13,28 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.CharacterLiteral;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.NullLiteral;
+import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.text.edits.MalformedTreeException;
+import org.eclipse.text.edits.TextEdit;
+
+import com.google.common.collect.ImmutableSet;
 
 
 /** Various utilities for converting source to one of the object representations. */
@@ -21,6 +43,12 @@ public class ASTWrapper {
 	private ASTWrapper() {
 		throw new AssertionError();
 	}
+
+	private static final ImmutableSet<String> BORING_NULLARY_CONSTRUCTORS =
+		ImmutableSet.of("java.util.Date",
+				"java.util.StringBuilder",
+				"java.util.StringBuffer");
+
 
 	/** Return the Java 5 CU for the string. */
 	 public static CompilationUnit compile(String c) {
@@ -147,5 +175,71 @@ public class ASTWrapper {
 		return n != null
 				? ASTWrapper.signature((MethodDeclaration) n)
 				: "[unknown method]";
+	}
+
+
+	public static String rewrite(final String src, final CompilationUnit changes) {
+		final Document doc = new Document(src);
+		try {
+			changes.rewrite(doc, null).apply(doc, TextEdit.UPDATE_REGIONS);
+		} catch (MalformedTreeException e) {
+			throw new RuntimeException(e);
+		} catch (BadLocationException e) {
+			throw new RuntimeException(e);
+		}
+		return doc.get();
+	}
+
+	public static boolean returnsVoid(MethodDeclaration node) {
+		final Type rt = node.getReturnType2();
+		return rt instanceof PrimitiveType
+			&& PrimitiveType.VOID.equals(((PrimitiveType) rt).getPrimitiveTypeCode());
+	}
+
+	/** Removes a fragment from its Statement.
+	 * If this leaves the Statement empty, remove the Statement from <b>its</b> parent. */
+	public static void removeFragment(final VariableDeclarationFragment vdf) {
+		final VariableDeclarationStatement vds = (VariableDeclarationStatement) vdf.getParent();
+		final List<VariableDeclarationFragment> fra = it(vds);
+		if (fra.size() == 1)
+			removeFromParent(vds);
+		fra.remove(vdf);
+	}
+
+	/** Remove a Statement from the Block that is its parent. */
+	public static boolean removeFromParent(final Statement s) {
+		return it((Block)s.getParent()).remove(s);
+	}
+
+	public static boolean doesNothingUseful(final Expression e) {
+		if (e instanceof NumberLiteral
+				|| e instanceof NullLiteral
+				|| e instanceof CharacterLiteral
+				|| e instanceof StringLiteral)
+			return true;
+
+		if (e instanceof InfixExpression) {
+			final InfixExpression inf = (InfixExpression) e;
+			return doesNothingUseful(inf.getLeftOperand())
+				&& doesNothingUseful(inf.getRightOperand());
+		}
+
+		if (e instanceof ClassInstanceCreation) {
+			final ClassInstanceCreation cic = (ClassInstanceCreation) e;
+			return cic.arguments().isEmpty()
+					&& BORING_NULLARY_CONSTRUCTORS.contains(
+							cic.getType().resolveBinding().getQualifiedName());
+		}
+
+		// Qualified names are a bit more scary,
+		// but the majority of the annoying ones should be caught by
+		// them being constant expressions; caught by the clause below
+		if (e instanceof SimpleName)
+			return true;
+
+		if (null != e.resolveConstantExpressionValue())
+			return true;
+
+		return false;
 	}
 }

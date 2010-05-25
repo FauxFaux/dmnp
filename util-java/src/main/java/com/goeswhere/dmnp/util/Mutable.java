@@ -6,6 +6,14 @@ import com.google.common.base.Supplier;
 public class Mutable<T> implements Supplier<T> {
 	private T val;
 
+	public Mutable() {
+		// implict set(null)
+	}
+
+	private Mutable(T t) {
+		set(t);
+	}
+
 	public void set(T val) {
 		this.val = val;
 	}
@@ -14,4 +22,7 @@ public class Mutable<T> implements Supplier<T> {
 		return val;
 	}
 
+	public static <T> Mutable<T> of(T t) {
+		return new Mutable<T>(t);
+	}
 }

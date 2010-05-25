@@ -6,8 +6,12 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.regex.Pattern;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 public class FileUtils {
 
@@ -103,5 +107,22 @@ public class FileUtils {
 
 	public static String consumeFile(File f) throws IOException {
 		return consumeFile(new FileReader(f));
+	}
+
+	/** Accept parameters like -classpath does: {@code a;b;c/*;d} (on Windows) */
+	public static String[] sysSplitWithWildcards(final String arg, final String starType) {
+		return Iterables.toArray(FJava.concatMap(Arrays.asList(sysSplit(arg)),
+				new Function<String, Iterable<String>>() {
+					@Override public Iterable<String> apply(String from) {
+						if (!from.endsWith("*"))
+							return ImmutableList.of(from);
+						final String withoutStar = from.substring(0, from.length() - 1);
+						return Iterables.transform(FileUtils.filesIn(withoutStar, starType), FileUtils.ABSOLUTE_PATH);
+					}}), String.class);
+	}
+
+	/** Split by the {@link File#separatorChar}. */
+	public static String[] sysSplit(final String string) {
+		return string.split(Pattern.quote(File.pathSeparator));
 	}
 }

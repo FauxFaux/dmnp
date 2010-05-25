@@ -19,6 +19,7 @@
 		<module>doccrap</module>
 		<module>expr</module>
 		<module>ue</module>
+		<module>inlineret</module>
 		<module>schema</module>
 		<module>slowdat</module>
 		<module>trace4j</module>

@@ -60,7 +60,7 @@ public class ASTContainers {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Iterable<VariableDeclarationFragment> it(VariableDeclarationStatement s) {
+	public static List<VariableDeclarationFragment> it(VariableDeclarationStatement s) {
 		return s.fragments();
 	}
 
@@ -132,9 +132,8 @@ public class ASTContainers {
 	public static Pair<ASTNode, ASTNode> sharedParent(ASTNode one, ASTNode two) {
 		if (one.getParent().equals(two.getParent()))
 			return Pair.of(one, two);
-		else {
+		else
 			return sharedParentDeep(one, two);
-		}
 	}
 
 	private static Pair<ASTNode, ASTNode> sharedParentDeep(ASTNode one, ASTNode two) {
@@ -147,6 +146,8 @@ public class ASTContainers {
 		while (null != tee) {
 			final ASTNode tmp = tee.getParent();
 			final int idx = tree.indexOf(tmp);
+			if (0 == idx)
+				return Pair.of(tmp, tmp);
 			if (-1 != idx)
 				return Pair.of(tree.get(idx - 1), tee);
 			tee = tmp;

@@ -108,6 +108,10 @@ class InlineRet extends FileFixer {
 							return true;
 
 						final Assignment assign = (Assignment) expr;
+
+						if (!Assignment.Operator.ASSIGN.equals(assign.getOperator()))
+							return true;
+
 						final Expression lhs = assign.getLeftHandSide();
 						if (!(lhs instanceof Name && ((Name) lhs).resolveBinding().equals(bin)))
 							return true;

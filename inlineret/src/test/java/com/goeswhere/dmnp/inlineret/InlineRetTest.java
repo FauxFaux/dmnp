@@ -88,6 +88,15 @@ public class InlineRetTest {
 			"}}");
 	}
 
+	@Test public void testLeavePlusEquals() {
+		final String src = "class A { int foo() {" +
+			" int a = 5;" +
+			" a += 5;" +
+			" return a;" +
+			"}}";
+		assertIRsTo(src, src);
+	}
+
 	private void assertIRsTo(String expected, String actual) {
 		assertEquals(clean(expected), clean(go(actual)));
 	}

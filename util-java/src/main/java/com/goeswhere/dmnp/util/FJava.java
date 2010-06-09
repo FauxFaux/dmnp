@@ -56,7 +56,7 @@ public class FJava {
 			.build();
 	}
 
-	public static <T> Iterable<T> cons(T t, Iterable<T> with) {
+	public static <T> Iterable<T> cons(T t, Iterable<? extends T> with) {
 		return Iterables.concat(ImmutableList.of(t), with);
 	}
 

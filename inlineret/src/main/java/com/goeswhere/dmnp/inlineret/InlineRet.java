@@ -6,10 +6,10 @@ import static com.goeswhere.dmnp.util.ASTWrapper.removeFromParent;
 import static com.goeswhere.dmnp.util.ASTWrapper.returnsVoid;
 import static com.goeswhere.dmnp.util.ASTWrapper.rewrite;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.locks.Lock;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -36,14 +36,14 @@ import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 
 class InlineRet extends FileFixer {
-	@VisibleForTesting InlineRet(String[] classpath, String[] sourcepath, String unitName) {
-		super(classpath, sourcepath, unitName);
+	@VisibleForTesting InlineRet(String[] classpath, String[] sourcepath, String unitName, Lock l) {
+		super(classpath, sourcepath, unitName, l);
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws InterruptedException {
 		main(args, new FileFixerCreator() {
-			@Override public Function<String, String> create(String[] cp, String[] sourcePath, String unitName) {
-				return new InlineRet(cp, sourcePath, unitName);
+			@Override public Function<String, String> create(String[] cp, String[] sourcePath, String unitName, Lock l) {
+				return new InlineRet(cp, sourcePath, unitName, l);
 			}
 		});
 	}

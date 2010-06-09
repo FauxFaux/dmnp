@@ -13,7 +13,9 @@ import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.IExtendedModifier;
 import org.eclipse.jdt.core.dom.IfStatement;
+import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -102,6 +104,16 @@ public class ASTContainers {
 	@SuppressWarnings("unchecked")
 	public static List<VariableDeclarationFragment> it(FieldDeclaration node) {
 		return node.fragments();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<Expression> it(InfixExpression infixExpression) {
+		return infixExpression.extendedOperands();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<IExtendedModifier> modifiers(BodyDeclaration b) {
+		return b.modifiers();
 	}
 
 	/** Examine the statements between two statements' ancestors,

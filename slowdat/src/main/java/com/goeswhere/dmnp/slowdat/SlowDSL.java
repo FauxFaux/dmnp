@@ -3,10 +3,10 @@ package com.goeswhere.dmnp.slowdat;
 import static com.goeswhere.dmnp.util.ASTWrapper.doesNothingUseful;
 import static com.goeswhere.dmnp.util.ASTWrapper.rewrite;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
 
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -36,10 +36,10 @@ import com.google.common.collect.Sets;
 
 public class SlowDSL extends FileFixer {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws InterruptedException {
 		main(args, new FileFixerCreator() {
-			@Override public Function<String, String> create(String[] cp, String[] sourcePath, String name) {
-				return new SlowDSL(cp, sourcePath, name);
+			@Override public Function<String, String> create(String[] cp, String[] sourcePath, String name, Lock l) {
+				return new SlowDSL(cp, sourcePath, name, l);
 			}
 		});
 	}
@@ -51,8 +51,8 @@ public class SlowDSL extends FileFixer {
 			}
 	};
 
-	@VisibleForTesting SlowDSL(String[] classpath, String[] sourcepath, String unitName) {
-		super(classpath, sourcepath, unitName);
+	@VisibleForTesting SlowDSL(String[] classpath, String[] sourcepath, String unitName, Lock l) {
+		super(classpath, sourcepath, unitName, l);
 	}
 
 	@Override public String apply(final String src) {
@@ -88,8 +88,6 @@ public class SlowDSL extends FileFixer {
 	private String go(final String origsrc, final Set<String> skip) {
 		final String newsrc = mutilateSource(origsrc, skip);
 
-		System.out.print(",");
-
 		final Set<String> currentlyBroken = Sets.newHashSet();
 
 		try {
@@ -113,8 +111,6 @@ public class SlowDSL extends FileFixer {
 				}
 			});
 		}
-
-		System.out.print(".");
 
 		if (seenBrokens.contains(currentlyBroken))
 			throw new RuntimeException("Didn't work, still have " + currentlyBroken);

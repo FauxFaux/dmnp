@@ -1,7 +1,10 @@
 package com.goeswhere.dmnp.util;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
@@ -38,6 +41,14 @@ public class Containers {
 
 	public static String hrList(final List<?> el) {
 		return hrList(el, " and ");
+	}
+
+	public static <T> Set<T> newConcurrentHashSet() {
+		return Collections.newSetFromMap(new ConcurrentHashMap<T, Boolean>());
+	}
+
+	public static <K,V> Map<K, V> newConcurrentHashMap() {
+		return new ConcurrentHashMap<K, V>();
 	}
 
 }

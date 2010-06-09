@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.goeswhere.dmnp.util.TestUtils;
+
 public class InlineRetTest {
 	@Test public void testSimple() {
 		assertIRsTo(
@@ -95,6 +97,6 @@ public class InlineRetTest {
 	}
 
 	private String go(String src) {
-		return new InlineRet(new String[0], new String[0], "A").apply(src);
+		return new InlineRet(new String[0], new String[0], "A", TestUtils.EMPTY_LOCK).apply(src);
 	}
 }

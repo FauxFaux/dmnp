@@ -2,20 +2,24 @@ package com.goeswhere.dmnp.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
 public class FileUtils {
 
-	private final static Charset DEFAULT_ENCODING = Charset.forName("UTF-8");
+	private final static Charset DEFAULT_ENCODING = Charsets.UTF_8;
 
 	public static final Function<File, String> ABSOLUTE_PATH = new Function<File, String>() {
 		@Override public String apply(File f) {
@@ -23,17 +27,31 @@ public class FileUtils {
 		}
 	};
 
+	public static class RuntimeIOException extends RuntimeException {
+		public RuntimeIOException(IOException e) {
+			super(e);
+		}
+	}
+
 	private FileUtils() {
 		throw new AssertionError();
 	}
 
 	/** Entire contents of the file in a String */
 	public static String consumeFile(final String filename) throws IOException {
-		return consumeFile(new FileReader(filename));
+		return consumeFile(new FileInputStream(filename));
+	}
+
+	public static String consumeFile(File f) throws IOException {
+		return consumeFile(new FileInputStream(f));
+	}
+
+	public static String consumeFile(final InputStream in) throws IOException {
+		return consumeFile(new InputStreamReader(in, DEFAULT_ENCODING));
 	}
 
 	/** CLOSES THE FILEREADER */
-	public static String consumeFile(final FileReader fileReader) throws IOException {
+	public static String consumeFile(final Reader fileReader) throws IOException {
 		final int block = 1024 * 10;
 		final StringBuilder fileData = new StringBuilder(block);
 		try {
@@ -95,18 +113,18 @@ public class FileUtils {
 		return createTempDir("dmnp");
 	}
 
-	public static void writeFile(File file, String string) throws IOException {
-		final FileOutputStream fos = new FileOutputStream(file);
+	public static void writeFile(File file, String string) {
 		try {
-			fos.write(string.getBytes(DEFAULT_ENCODING));
-		} finally {
-			fos.flush();
-			fos.close();
+			final FileOutputStream fos = new FileOutputStream(file);
+			try {
+				fos.write(string.getBytes(DEFAULT_ENCODING));
+			} finally {
+				fos.flush();
+				fos.close();
+			}
+		} catch (IOException e) {
+			throw new RuntimeIOException(e);
 		}
-	}
-
-	public static String consumeFile(File f) throws IOException {
-		return consumeFile(new FileReader(f));
 	}
 
 	/** Accept parameters like -classpath does: {@code a;b;c/*;d} (on Windows) */

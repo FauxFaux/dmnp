@@ -34,7 +34,9 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 
 
 /** Various utilities for converting source to one of the object representations. */
@@ -221,7 +223,12 @@ public class ASTWrapper {
 		if (e instanceof InfixExpression) {
 			final InfixExpression inf = (InfixExpression) e;
 			return doesNothingUseful(inf.getLeftOperand())
-				&& doesNothingUseful(inf.getRightOperand());
+				&& doesNothingUseful(inf.getRightOperand())
+				&& Iterables.isEmpty(Iterables.filter(ASTContainers.it(inf), new Predicate<Expression>() {
+					@Override public boolean apply(Expression input) {
+						return !doesNothingUseful(input);
+					}
+				}));
 		}
 
 		if (e instanceof ClassInstanceCreation) {

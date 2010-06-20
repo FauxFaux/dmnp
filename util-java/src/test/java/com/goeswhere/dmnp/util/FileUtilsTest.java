@@ -2,6 +2,8 @@ package com.goeswhere.dmnp.util;
 
 import static com.goeswhere.dmnp.util.FileUtils.ABSOLUTE_PATH;
 import static com.goeswhere.dmnp.util.FileUtils.createTempDir;
+import static com.goeswhere.dmnp.util.FileUtils.filesIn;
+import static com.goeswhere.dmnp.util.FileUtils.javaFilesIn;
 import static com.goeswhere.dmnp.util.FileUtils.recursivelyDelete;
 import static com.goeswhere.dmnp.util.FileUtils.sysSplit;
 import static com.goeswhere.dmnp.util.FileUtils.sysSplitWithWildcards;
@@ -11,9 +13,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 
 import org.junit.Test;
+
+import com.google.common.collect.Iterables;
 
 
 public class FileUtilsTest {
@@ -49,5 +54,18 @@ public class FileUtilsTest {
 
 	private String washPath(final String p) {
 		return ABSOLUTE_PATH.apply(new File(p));
+	}
+
+	final FileFilter EVERYTHING_FILEFILTER = new FileFilter() {
+		@Override public boolean accept(File pathname) {
+			return true;
+		}
+	};
+
+	@Test public void testFilesIn() {
+		filesIn(new File("/"), EVERYTHING_FILEFILTER).iterator().next();
+		Iterables.toString(filesIn(new File("."), EVERYTHING_FILEFILTER));
+		javaFilesIn(".").iterator().next().getName().endsWith(".java");
+		System.out.println(filesIn(".classpath", "classpath"));
 	}
 }

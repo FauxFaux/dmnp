@@ -1,13 +1,16 @@
 package com.goeswhere.dmnp.util;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CatchClause;
+import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.Expression;
@@ -19,11 +22,15 @@ import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
+import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TryStatement;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -32,7 +39,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 public class ASTContainers {
 
 	@SuppressWarnings("unchecked")
-	public static Iterable<SingleVariableDeclaration> it(MethodDeclaration d) {
+	public static List<SingleVariableDeclaration> it(MethodDeclaration d) {
 		return d.parameters();
 	}
 
@@ -64,11 +71,6 @@ public class ASTContainers {
 	@SuppressWarnings("unchecked")
 	public static List<VariableDeclarationFragment> it(VariableDeclarationStatement s) {
 		return s.fragments();
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Iterable<BodyDeclaration> it(AbstractTypeDeclaration s) {
-		return s.bodyDeclarations();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -113,6 +115,11 @@ public class ASTContainers {
 
 	@SuppressWarnings("unchecked")
 	public static List<IExtendedModifier> modifiers(BodyDeclaration b) {
+		return b.modifiers();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<IExtendedModifier> modifiers(VariableDeclarationStatement b) {
 		return b.modifiers();
 	}
 
@@ -168,5 +175,32 @@ public class ASTContainers {
 		throw new IllegalArgumentException("Nodes don't share a parent! "
 				+ Containers.classAndToString(oee) + " // "
 				+ Containers.classAndToString(tee));
+	}
+
+	/** Any {@link SimpleType} named "Logger" */
+	public static boolean isLoggerType(Type type) {
+		return type instanceof SimpleType
+			&& compareIfSimpleNode("Logger", ((SimpleType)type).getName());
+	}
+
+	public static Set<String> loggers(ASTNode n) {
+		final Set<String> ret = new HashSet<String>();
+		n.accept(new LoggerFieldFinder(ret));
+		return ret;
+	}
+
+	public static boolean compareIfSimpleNode(String name, ASTNode node) {
+		return node instanceof SimpleName
+			&& name.equals(((SimpleName) node).getIdentifier());
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<Statement> statements(SwitchStatement ss) {
+		return ss.statements();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<Comment> comments(CompilationUnit cu) {
+		return cu.getCommentList();
 	}
 }

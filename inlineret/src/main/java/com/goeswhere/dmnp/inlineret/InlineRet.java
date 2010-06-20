@@ -29,20 +29,20 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 import com.goeswhere.dmnp.util.ASTContainers;
 import com.goeswhere.dmnp.util.Containers;
-import com.goeswhere.dmnp.util.FileFixer;
-import com.goeswhere.dmnp.util.FileFixerCreator;
+import com.goeswhere.dmnp.util.ResolvingFileFixer;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 
-class InlineRet extends FileFixer {
+class InlineRet extends ResolvingFileFixer {
 	@VisibleForTesting InlineRet(String[] classpath, String[] sourcepath, String unitName, Lock l) {
 		super(classpath, sourcepath, unitName, l);
 	}
 
 	public static void main(String[] args) throws InterruptedException {
-		main(args, new FileFixerCreator() {
-			@Override public Function<String, String> create(String[] cp, String[] sourcePath, String unitName, Lock l) {
+		main(args, new Creator() {
+			@Override public Function<String, String> create(String[] cp,
+					String[] sourcePath, String unitName, Lock l) {
 				return new InlineRet(cp, sourcePath, unitName, l);
 			}
 		});

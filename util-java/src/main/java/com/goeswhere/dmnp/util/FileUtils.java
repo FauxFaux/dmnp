@@ -1,7 +1,10 @@
 package com.goeswhere.dmnp.util;
 
+import static com.goeswhere.dmnp.util.FJava.concatMap;
+
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,6 +13,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Charsets;
@@ -30,6 +36,10 @@ public class FileUtils {
 	public static class RuntimeIOException extends RuntimeException {
 		public RuntimeIOException(IOException e) {
 			super(e);
+		}
+
+		public RuntimeIOException(String msg, IOException e) {
+			super(msg, e);
 		}
 	}
 
@@ -89,17 +99,41 @@ public class FileUtils {
 		return filesIn(path, "java");
 	}
 
-	public static Iterable<File> filesIn(final String path, final String ext) {
-		return new Iterable<File>() {
-			@SuppressWarnings("unchecked")
-			@Override
-			public java.util.Iterator<File> iterator() {
-				return org.apache.commons.io.FileUtils.iterateFiles(
-						new File(path),
-						new String[] { ext },
-						true);
+	public static Iterable<File> javaFilesIn(final File f) {
+		return filesIn(f, "java");
+	}
+
+	public static Iterable<File> filesIn(String path, String ext) {
+		return filesIn(new File(path), ext);
+	}
+
+	private static Iterable<File> filesIn(final File root, final String ext) {
+		final String dottedex = "." + ext;
+
+		return filesIn(root, new FileFilter() {
+			@Override public boolean accept(File pathname) {
+				return pathname.getName().endsWith(dottedex);
+			}
+		});
+	}
+
+	/** Silently ignores un-listable directories. */
+	public static Iterable<File> filesIn(final File root, final FileFilter ffun) {
+		final FileFilter ff = new FileFilter() {
+			@Override public boolean accept(File pathname) {
+				return pathname.isDirectory() || ffun.accept(pathname);
 			}
 		};
+
+		final File[] fl = root.listFiles(ff);
+		if (null == fl)
+			return Collections.emptyList();
+
+		return concatMap(Arrays.asList(fl),
+				new Function<File, Iterable<File>>() {
+					@Override public Iterable<File> apply(File from) {
+						return from.isDirectory() ? filesIn(from, ff) : Arrays.asList(from);
+					}});
 	}
 
 	public static File createTempDir(final String name) throws IOException, FailedException {
@@ -111,6 +145,18 @@ public class FileUtils {
 
 	public static File createTempDir() throws IOException, FailedException {
 		return createTempDir("dmnp");
+	}
+
+	public static File createTempDir(Map<String, String> files) throws IOException, FailedException {
+		final File ret = createTempDir();
+		try {
+			for (Entry<String, String> fs : files.entrySet())
+				writeFile(new File(ret + "/" + fs.getKey()), fs.getValue());
+		} catch (RuntimeException e) {
+			recursivelyDelete(ret);
+			throw e;
+		}
+		return ret;
 	}
 
 	public static void writeFile(File file, String string) {

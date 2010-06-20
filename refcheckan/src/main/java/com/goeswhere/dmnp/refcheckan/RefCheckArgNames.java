@@ -34,6 +34,7 @@ import com.goeswhere.dmnp.util.ASTWrapper;
 import com.goeswhere.dmnp.util.Containers;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
@@ -67,7 +68,7 @@ public class RefCheckArgNames {
 		final SetMultimap<String, MethodDeclaration> methodLocations =
 			Multimaps.synchronizedSetMultimap(HashMultimap.<String, MethodDeclaration>create());
 		final Set<String> calledMethods = Containers.newConcurrentHashSet();
-		final Map<MethodDeclaration, String> location = Containers.newConcurrentHashMap();
+		final Map<MethodDeclaration, String> location = Maps.newConcurrentMap();
 
 		final ExecutorService ex = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
 		for (String srcPath : sourcePath)

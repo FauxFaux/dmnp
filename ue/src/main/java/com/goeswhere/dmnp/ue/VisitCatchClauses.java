@@ -7,8 +7,8 @@ import java.util.Set;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.SimpleType;
-import org.eclipse.jdt.core.dom.Type;
+
+import com.goeswhere.dmnp.util.LoggerFieldFinder;
 
 /** Run {@link UsefullyUsesException} on each catch clause. */
 class VisitCatchClauses extends ASTVisitor {
@@ -35,11 +35,5 @@ class VisitCatchClauses extends ASTVisitor {
 		final Set<String> fields = new HashSet<String>();
 		cu.accept(new LoggerFieldFinder(fields));
 		cu.accept(new VisitCatchClauses(rep, Collections.unmodifiableSet(fields)));
-	}
-
-	/** Any {@link SimpleType} named "Logger" */
-	static boolean isLoggerType(Type type) {
-		return type instanceof SimpleType
-			&& UsefullyUsesException.compareIfSimpleNode("Logger", ((SimpleType)type).getName());
 	}
 }

@@ -23,8 +23,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 import com.goeswhere.dmnp.util.ASTContainers;
 import com.goeswhere.dmnp.util.ASTWrapper.HadProblems;
-import com.goeswhere.dmnp.util.FileFixer;
-import com.goeswhere.dmnp.util.FileFixerCreator;
+import com.goeswhere.dmnp.util.ResolvingFileFixer;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
@@ -34,11 +33,12 @@ import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
 
-public class SlowDSL extends FileFixer {
+public class SlowDSL extends ResolvingFileFixer {
 
 	public static void main(String[] args) throws InterruptedException {
-		main(args, new FileFixerCreator() {
-			@Override public Function<String, String> create(String[] cp, String[] sourcePath, String name, Lock l) {
+		main(args, new Creator() {
+			@Override public Function<String, String> create(String[] cp,
+					String[] sourcePath, String name, Lock l) {
 				return new SlowDSL(cp, sourcePath, name, l);
 			}
 		});

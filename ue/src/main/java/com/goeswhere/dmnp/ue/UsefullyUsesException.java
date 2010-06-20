@@ -1,9 +1,11 @@
 package com.goeswhere.dmnp.ue;
+
+import static com.goeswhere.dmnp.util.ASTContainers.compareIfSimpleNode;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
@@ -86,11 +88,6 @@ class UsefullyUsesException extends ASTVisitor {
 	/** .fatal(), .error() or .warn() */
 	private static boolean isAcceptableWarnLevel(final String identifier) {
 		return identifier.equals("fatal") || identifier.equals("error") || identifier.equals("warn");
-	}
-
-	static boolean compareIfSimpleNode(String name, ASTNode node) {
-		return node instanceof SimpleName
-			&& name.equals(((SimpleName) node).getIdentifier());
 	}
 
 	/** If the expression is a name equal to the one we're looking for */

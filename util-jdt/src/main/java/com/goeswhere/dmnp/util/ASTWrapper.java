@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NullLiteral;
@@ -104,6 +105,7 @@ public class ASTWrapper {
 		return compile(src, "OnlyNecessaryForPublicClasses", classpath, source);
 	}
 
+	/** If classpath == source == null, don't resolve bindings. Also ignores filename. */
 	public static CompilationUnit compile(String src, String filename, String[] classpath, String[] source) {
 		final ASTParser parser = getParser(src);
 		if (null != classpath && null != source) {
@@ -181,7 +183,10 @@ public class ASTWrapper {
 
 
 	public static String rewrite(final String src, final CompilationUnit changes) {
-		final Document doc = new Document(src);
+		return rewrite(new Document(src), changes);
+	}
+
+	public static String rewrite(final Document doc, final CompilationUnit changes) {
 		try {
 			changes.rewrite(doc, null).apply(doc, TextEdit.UPDATE_REGIONS);
 		} catch (MalformedTreeException e) {
@@ -233,9 +238,11 @@ public class ASTWrapper {
 
 		if (e instanceof ClassInstanceCreation) {
 			final ClassInstanceCreation cic = (ClassInstanceCreation) e;
-			return cic.arguments().isEmpty()
-					&& BORING_NULLARY_CONSTRUCTORS.contains(
-							cic.getType().resolveBinding().getQualifiedName());
+			if (!cic.arguments().isEmpty())
+				return false;
+
+			final ITypeBinding rb = cic.getType().resolveBinding();
+			return null != rb && BORING_NULLARY_CONSTRUCTORS.contains(rb.getQualifiedName());
 		}
 
 		// Qualified names are a bit more scary,

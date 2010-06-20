@@ -1,119 +1,90 @@
 package com.goeswhere.dmnp.util;
 
-import static com.goeswhere.dmnp.util.FileUtils.consumeFile;
-import static com.goeswhere.dmnp.util.FileUtils.sysSplit;
-import static com.goeswhere.dmnp.util.FileUtils.sysSplitWithWildcards;
-import static com.goeswhere.dmnp.util.FileUtils.writeFile;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 
 /**
  * Internal junk for a class which processes compilable files in an {@code String apply(String)} fashion.
  *
- * <b>Overwrites files in-place without back-up</b>.
+ * <p>Internally parallelised.  create()'s return values will not be shared between threads.
+ * They must not write to the source directory except by returning new file contents.
+ *
+ * <p>e.g. <pre>
+ * class Foo extends SimpleFileFixer {
+ *  public static void main(String[] args) throws InterruptedException {
+ *   main(args, new Creator() {
+ *    public Function<String, String> create() {
+ *     return new Foo();
+ *    }});
+ *  }
+ *
+ *  public String apply(final String from) {
+ *   CompilationUnit cu = compile(from);
+ *   cu.recordModifications();
+ *   mutate(cu);
+ *   return rewrite(from, cu);
+ *  }</pre>
+ *
+ * <p><b>Overwrites files in-place without back-up</b>.
  */
-public abstract class FileFixer implements Function<String, String> {
+abstract class FileFixer implements Function<String, String> {
 
-	private final String[] classpath;
-	private final String[] sourcepath;
-	private final String unitName;
-	private final Lock compilerLock;
+	private static ThreadPoolExecutor pool;
 
-	protected FileFixer(String[] classpath, String[] sourcepath, String unitName, Lock compilerLock) {
-		this.classpath = classpath;
-		this.sourcepath = sourcepath;
-		this.unitName = unitName;
-		this.compilerLock = compilerLock;
+	protected static Iterable<File> fileOrFileList(final File f) {
+		return f.isDirectory() ? FileUtils.javaFilesIn(f) : Arrays.asList(f);
 	}
 
-	/** Process parameters for main, then do work.
-	 * @throws InterruptedException */
-	public static void main(String[] args, FileFixerCreator creator) throws InterruptedException {
-		if (3 != args.length) {
-			System.err.println("Usage: classpath sourcepath file");
-			return;
-		}
+	protected synchronized static ExecutorService service() {
+		if (null != pool)
+			throw new IllegalStateException("service() can only be used once");
 
-		final String[] cp = sysSplitWithWildcards(args[0], "jar");
-		final String[] sourcePath = sysSplit(args[1]);
-		final String path = args[2];
-
-		loop(cp, sourcePath, path, creator);
+		final int nThreads = Runtime.getRuntime().availableProcessors() * 4;
+		return pool = new ThreadPoolExecutor(nThreads, nThreads,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>());
 	}
 
-	private static void loop(final String[] cp, final String[] sourcePath, final String path, final FileFixerCreator creator)
-			throws InterruptedException {
-		final File f = new File(path);
-		final ExecutorService es = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 4);
-		final ReadWriteLock r = new ReentrantReadWriteLock(true);
-		final Lock wl = r.writeLock();
-		final BlockDoer writer = BlockDoer.start(wl);
-
-		try {
-			for (final File file : f.isDirectory() ? FileUtils.javaFilesIn(path) : Arrays.asList(f)) {
-				es.submit(new Runnable() {
-					@Override public void run() {
-						System.out.println(Thread.currentThread().getName() + ": Processing " + file.getName() + ".");
-						try {
-							final String thispath = file.getAbsolutePath();
-							final String read;
-
-							final Lock rl = r.readLock();
-							rl.lock();
-							try {
-								read = consumeFile(thispath);
-							} finally {
-								rl.unlock();
-							}
-
-							final String result = creator.create(cp, sourcePath, unitName(thispath), rl).apply(read);
-
-							if (!result.equals(read))
-								writer.offer(new Runnable() {
-									@Override public void run() {
-										System.out.println("Writing " + thispath);
-										writeFile(new File(thispath), result);
-									}
-								});
-						} catch (Exception e) {
-							System.err.println("While processing " + file + ": ");
-							e.printStackTrace(System.err);
-						}
-					}
-				});
-			}
-			es.shutdown();
-			es.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-		} finally {
-			writer.close();
-		}
+	protected static void err(File file, Exception e) {
+		System.err.println("While processing " + file + ": ");
+		e.printStackTrace(System.err);
 	}
 
-	public static String unitName(String path) {
-		final String f = new File(path).getName();
-		final String ext = ".java";
-		Preconditions.checkArgument(f.endsWith(ext));
-		return f.substring(0, f.length() - ext.length());
+	protected static void proc(File file) {
+		msg(file, "Starting");
 	}
 
-	protected CompilationUnit compile(String src) {
-		compilerLock.lock();
-		try {
-			return ASTWrapper.compile(src, unitName, classpath, sourcepath);
-		} finally {
-			compilerLock.unlock();
-		}
+	protected static void term(File file) {
+		msg(file, "Finished");
 	}
+
+	private static void msg(File file, final String t) {
+		final int num = queueSizeEstimate();
+		final String q = approximately(num);
+
+		System.out.println(Thread.currentThread().getName() + ": " + t + " " + file.getName() + ".  " +
+				(pool.isShutdown() ? q + " remaining." :
+					"Still finding files.  " + q + " in queue."));
+	}
+
+	private static synchronized int queueSizeEstimate() {
+		return pool.getQueue().size() + pool.getActiveCount() - 1;
+	}
+
+	private static String approximately(final int num) {
+		if (0 == num)
+			return "0";
+		else
+			return "~" + num;
+	}
+
+	protected abstract CompilationUnit compile(String src);
 }

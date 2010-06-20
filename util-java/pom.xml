@@ -20,9 +20,9 @@
 			<version>r05</version>
 		</dependency>
 		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>1.4</version>
+			<groupId>com.intellij</groupId>
+			<artifactId>annotations</artifactId>
+			<version>7.0.3</version>
 		</dependency>
 	</dependencies>
 </project>

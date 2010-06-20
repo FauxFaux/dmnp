@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
@@ -47,8 +49,31 @@ public class Containers {
 		return Collections.newSetFromMap(new ConcurrentHashMap<T, Boolean>());
 	}
 
-	public static <K,V> Map<K, V> newConcurrentHashMap() {
-		return new ConcurrentHashMap<K, V>();
+	public static <K,V> Function<K,V> asFunction(final Map<K,V> m) {
+		return new Function<K, V>() {
+			@Override public V apply(K from) {
+				return m.get(from);
+			}
+		};
+	}
+
+	public static boolean allNull(Object... os) {
+		for (Object o : os)
+			if (null != o)
+				return false;
+		return true;
+	}
+
+	public static boolean noneNull(Object... os) {
+		for (Object o : os)
+			if (null == o)
+				return false;
+		return true;
+	}
+
+	public static boolean awaitTermination(ExecutorService es) throws InterruptedException {
+		es.shutdown();
+		return es.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 	}
 
 }

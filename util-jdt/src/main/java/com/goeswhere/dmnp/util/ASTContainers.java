@@ -40,42 +40,42 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 public class ASTContainers {
 
 	@SuppressWarnings("unchecked")
-	public static List<SingleVariableDeclaration> it(MethodDeclaration d) {
+	public static List<SingleVariableDeclaration> parameters(MethodDeclaration d) {
 		return d.parameters();
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<Statement> it(Block d) {
+	public static List<Statement> statements(Block d) {
 		return d.statements();
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Iterable<Expression> it(ForStatement s) {
+	public static Iterable<Expression> initializers(ForStatement s) {
 		return s.initializers();
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Iterable<Expression> it(SuperConstructorInvocation d) {
+	public static Iterable<Expression> arguments(SuperConstructorInvocation d) {
 		return d.arguments();
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Iterable<Expression> it(ConstructorInvocation d) {
+	public static Iterable<Expression> arguments(ConstructorInvocation d) {
 		return d.arguments();
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Iterable<CatchClause> it(TryStatement s) {
+	public static Iterable<CatchClause> catchClauses(TryStatement s) {
 		return s.catchClauses();
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<VariableDeclarationFragment> it(VariableDeclarationStatement s) {
+	public static List<VariableDeclarationFragment> fragments(VariableDeclarationStatement s) {
 		return s.fragments();
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Iterable<VariableDeclarationFragment> it(VariableDeclarationExpression e) {
+	public static Iterable<VariableDeclarationFragment> fragments(VariableDeclarationExpression e) {
 		return e.fragments();
 	}
 
@@ -105,13 +105,8 @@ public class ASTContainers {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<VariableDeclarationFragment> it(FieldDeclaration node) {
+	public static List<VariableDeclarationFragment> fragments(FieldDeclaration node) {
 		return node.fragments();
-	}
-
-	@SuppressWarnings("unchecked")
-	public static List<Expression> it(InfixExpression infixExpression) {
-		return infixExpression.extendedOperands();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -135,7 +130,7 @@ public class ASTContainers {
 	 * */
 	public static Iterable<Statement> statementsBetweenFlat(ASTNode one, ASTNode two) {
 		final Pair<ASTNode, ASTNode> parents = sharedParent(one, two);
-		final List<Statement> lis = ASTContainers.it((Block) clean(parents.t).getParent());
+		final List<Statement> lis = statements((Block) clean(parents.t).getParent());
 		return BetweenIterable.of(lis, (Statement)parents.t, (Statement)parents.u);
 	}
 

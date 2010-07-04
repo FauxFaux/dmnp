@@ -1,6 +1,8 @@
 package com.goeswhere.dmnp.util;
 
-import static com.goeswhere.dmnp.util.ASTContainers.it;
+import static com.goeswhere.dmnp.util.ASTContainers.extendedOperands;
+import static com.goeswhere.dmnp.util.ASTContainers.fragments;
+import static com.goeswhere.dmnp.util.ASTContainers.statements;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,7 +40,6 @@ import org.eclipse.text.edits.TextEdit;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-
 
 /** Various utilities for converting source to one of the object representations. */
 public class ASTWrapper {
@@ -207,7 +208,7 @@ public class ASTWrapper {
 	 * If this leaves the Statement empty, remove the Statement from <b>its</b> parent. */
 	public static void removeFragment(final VariableDeclarationFragment vdf) {
 		final VariableDeclarationStatement vds = (VariableDeclarationStatement) vdf.getParent();
-		final List<VariableDeclarationFragment> fra = it(vds);
+		final List<VariableDeclarationFragment> fra = fragments(vds);
 		if (fra.size() == 1)
 			removeFromParent(vds);
 		fra.remove(vdf);
@@ -215,7 +216,7 @@ public class ASTWrapper {
 
 	/** Remove a Statement from the Block that is its parent. */
 	public static boolean removeFromParent(final Statement s) {
-		return it((Block)s.getParent()).remove(s);
+		return statements((Block)s.getParent()).remove(s);
 	}
 
 	public static boolean doesNothingUseful(final Expression e) {
@@ -229,7 +230,7 @@ public class ASTWrapper {
 			final InfixExpression inf = (InfixExpression) e;
 			return doesNothingUseful(inf.getLeftOperand())
 				&& doesNothingUseful(inf.getRightOperand())
-				&& Iterables.isEmpty(Iterables.filter(ASTContainers.it(inf), new Predicate<Expression>() {
+				&& Iterables.isEmpty(Iterables.filter(extendedOperands(inf), new Predicate<Expression>() {
 					@Override public boolean apply(Expression input) {
 						return !doesNothingUseful(input);
 					}

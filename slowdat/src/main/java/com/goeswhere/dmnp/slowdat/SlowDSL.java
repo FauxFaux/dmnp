@@ -67,7 +67,7 @@ public class SlowDSL extends ResolvingFileFixer {
 		}
 
 		@Override public boolean visit(VariableDeclarationStatement node) {
-			for (VariableDeclarationFragment a : ASTContainers.it(node)) {
+			for (VariableDeclarationFragment a : ASTContainers.fragments(node)) {
 				final Expression i = a.getInitializer();
 				if (null == i)
 					continue;

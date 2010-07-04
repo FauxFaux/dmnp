@@ -122,7 +122,7 @@ public class DumClosed {
 								return true;
 
 							final Map<String, Badness> names = new HashMap<String, Badness>();
-							for (VariableDeclarationFragment a : ASTContainers.it(ty))
+							for (VariableDeclarationFragment a : ASTContainers.fragments(ty))
 								names.put(a.getName().getIdentifier(), Badness.REALLY);
 
 							meth.accept(markerOf(names, Badness.QUITE));
@@ -133,7 +133,7 @@ public class DumClosed {
 									if (null == fin)
 										return true;
 
-									final List<Statement> it = ASTContainers.it(fin);
+									final List<Statement> it = ASTContainers.statements(fin);
 
 									if (it.isEmpty())
 										return true;
@@ -202,7 +202,7 @@ public class DumClosed {
 
 	private static boolean safeStatement(Statement s) {
 		if (s instanceof VariableDeclarationStatement) {
-			for (VariableDeclarationFragment f : ASTContainers.it((VariableDeclarationStatement)s))
+			for (VariableDeclarationFragment f : ASTContainers.fragments((VariableDeclarationStatement)s))
 				if (null != f.getInitializer())
 					return false;
 			return true;

@@ -151,7 +151,7 @@ class InlineRet extends ResolvingFileFixer {
 		final ASTNode par = retur.getParent();
 		if (!(par instanceof Block))
 			throw new IllegalArgumentException("Parent isn't a block: " + Containers.classAndToString(par));
-		final List<Statement> stats = ASTContainers.it((Block) par);
+		final List<Statement> stats = ASTContainers.statements((Block) par);
 		final int ind = stats.indexOf(retur);
 		if (0 == ind)
 			throw new FirstElementOfBlock("Statement is first element of block");

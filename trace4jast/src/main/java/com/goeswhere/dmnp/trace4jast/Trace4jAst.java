@@ -227,7 +227,7 @@ public class Trace4jAst extends SimpleFileFixer {
 				if (md.getParent() != atd || null == oldbody)
 					return;
 
-				final List<Statement> contents = ASTContainers.it(oldbody);
+				final List<Statement> contents = ASTContainers.statements(oldbody);
 				if (contents.isEmpty())
 					return;
 
@@ -300,7 +300,7 @@ public class Trace4jAst extends SimpleFileFixer {
 					String identifier, NameGenerator ng) {
 				final AST ast = md.getAST();
 				final Block oldbody = md.getBody();
-				final List<Statement> contents = ASTContainers.it(oldbody);
+				final List<Statement> contents = ASTContainers.statements(oldbody);
 
 				contents.add(0, enter(ast, loggerName, identifier));
 				final Block newbody = ast.newBlock();
@@ -309,9 +309,9 @@ public class Trace4jAst extends SimpleFileFixer {
 				final TryStatement trs = ast.newTryStatement();
 				trs.setBody(oldbody);
 				final Block finblock = ast.newBlock();
-				ASTContainers.it(finblock).add(leave(ast, loggerName, identifier, "leaving"));
+				ASTContainers.statements(finblock).add(leave(ast, loggerName, identifier, "leaving"));
 				trs.setFinally(finblock);
-				ASTContainers.it(newbody).add(trs);
+				ASTContainers.statements(newbody).add(trs);
 			}
 		},
 		/** <code>T foo() { a(); return b(); }</code> to
@@ -321,7 +321,7 @@ public class Trace4jAst extends SimpleFileFixer {
 					final String identifier, NameGenerator ng) {
 				final AST ast = md.getAST();
 				final Block oldbody = md.getBody();
-				final List<Statement> contents = ASTContainers.it(oldbody);
+				final List<Statement> contents = ASTContainers.statements(oldbody);
 
 				contents.add(0, enter(ast, loggerName, identifier));
 
@@ -394,7 +394,7 @@ public class Trace4jAst extends SimpleFileFixer {
 					final Statement rs = ex.get();
 					final Block newblock = blockate(rs);
 
-					final List<Statement> newcontents = ASTContainers.it(newblock);
+					final List<Statement> newcontents = ASTContainers.statements(newblock);
 					final Expression retexp = ex.getExpression();
 					if (null != retexp && !ASTWrapper.doesNothingUseful(retexp)) {
 						final VariableDeclarationFragment vdf = ast.newVariableDeclarationFragment();
@@ -437,7 +437,7 @@ public class Trace4jAst extends SimpleFileFixer {
 
 		final List<Statement> parcont;
 		if (parent instanceof Block)
-			parcont = ASTContainers.it((Block) parent);
+			parcont = ASTContainers.statements((Block) parent);
 		else
 			parcont = ASTContainers.statements((SwitchStatement) parent);
 
@@ -467,7 +467,7 @@ public class Trace4jAst extends SimpleFileFixer {
 				final int mod = node.getModifiers();
 				if (!isPrivate(mod) || !isStatic(mod) || !isFinal(mod) || !isLoggerType(node.getType()))
 					return true;
-				final VariableDeclarationFragment vdf = Iterables.getOnlyElement(ASTContainers.it(node));
+				final VariableDeclarationFragment vdf = Iterables.getOnlyElement(ASTContainers.fragments(node));
 				final Expression init = vdf.getInitializer();
 				if (!(init instanceof MethodInvocation))
 					return true;

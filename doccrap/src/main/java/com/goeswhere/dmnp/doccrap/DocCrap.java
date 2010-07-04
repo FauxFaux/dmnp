@@ -133,7 +133,7 @@ public class DocCrap {
 
 	private static Map<String, String> methodArgs(MethodDeclaration node) {
 		Map<String, String> args = new HashMap<String, String>();
-		for (SingleVariableDeclaration a : ASTContainers.it(node))
+		for (SingleVariableDeclaration a : ASTContainers.parameters(node))
 			args.put(a.getName().getIdentifier(), stringize(a.getType()));
 		return args;
 	}

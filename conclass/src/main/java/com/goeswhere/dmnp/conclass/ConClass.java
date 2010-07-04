@@ -60,7 +60,7 @@ public class ConClass {
 		final Document doc = new Document(cus);
 		cu.accept(new ASTVisitor() {
 			@Override public boolean visit(FieldDeclaration node) {
-				for (Iterator<VariableDeclarationFragment> it = ASTContainers.it(node).iterator(); it.hasNext();)
+				for (Iterator<VariableDeclarationFragment> it = ASTContainers.fragments(node).iterator(); it.hasNext();)
 					if (eliminatable.contains(it.next().getName().getIdentifier()))
 						it.remove();
 				if (node.fragments().isEmpty())
@@ -84,7 +84,7 @@ public class ConClass {
 		final Set<String> eliminatable = Sets.newHashSet();
 		theclass.accept(new ASTVisitor() {
 			@Override public boolean visit(FieldDeclaration node) {
-				for (VariableDeclarationFragment f : ASTContainers.it(node)) {
+				for (VariableDeclarationFragment f : ASTContainers.fragments(node)) {
 					final String identifier = f.getName().getIdentifier();
 					if (!used.contains(identifier) && !identifier.matches(".*\\d+(?:$|_.*)"))
 						eliminatable.add(identifier);

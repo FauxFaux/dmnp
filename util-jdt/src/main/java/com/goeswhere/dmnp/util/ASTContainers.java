@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CatchClause;
@@ -202,5 +203,20 @@ public class ASTContainers {
 	@SuppressWarnings("unchecked")
 	public static List<Comment> comments(CompilationUnit cu) {
 		return cu.getCommentList();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<Expression> extendedOperands(InfixExpression ie) {
+		return ie.extendedOperands();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<Expression> expressions(final ArrayInitializer ai) {
+		return ai.expressions();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T extends ASTNode> T duplicate(T t) {
+		return (T) ASTNode.copySubtree(t.getAST(), t);
 	}
 }

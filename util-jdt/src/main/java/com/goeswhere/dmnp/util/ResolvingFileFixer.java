@@ -69,7 +69,7 @@ public abstract class ResolvingFileFixer extends FileFixer {
 			for (final File file : fileOrFileList(f)) {
 				es.submit(new Runnable() {
 					@Override public void run() {
-						System.out.println(Thread.currentThread().getName() + ": Processing " + file.getName() + ".");
+						proc(file);
 						try {
 							final String thispath = file.getAbsolutePath();
 							final String read;

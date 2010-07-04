@@ -1,5 +1,6 @@
 package com.goeswhere.dmnp.trace4jast;
 
+import static com.goeswhere.dmnp.util.ASTContainers.duplicate;
 import static com.goeswhere.dmnp.util.ASTContainers.isLoggerType;
 import static com.goeswhere.dmnp.util.ASTWrapper.rewrite;
 import static org.eclipse.jdt.core.dom.Modifier.isFinal;
@@ -20,6 +21,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -49,6 +51,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 
@@ -379,8 +382,12 @@ public class Trace4jAst extends SimpleFileFixer {
 					}
 				});
 
-				if (toProcess.isEmpty())
-					contents.add(leave(ast, loggerName, identifier, "leaving"));
+				if (toProcess.isEmpty()) {
+					final Statement lastStatement = contents.get(contents.size() - 1);
+					if (!(lastStatement instanceof WhileStatement
+							&& ((WhileStatement) lastStatement).getExpression() instanceof BooleanLiteral))
+						contents.add(leave(ast, loggerName, identifier, "leaving"));
+				}
 
 				int item = 0;
 				for (HasExpression ex : toProcess) {
@@ -565,10 +572,5 @@ public class Trace4jAst extends SimpleFileFixer {
 			if (!paramCount.add(m.parameters().size()))
 				return false;
 		return true;
-	}
-
-	@SuppressWarnings("unchecked")
-	private static <T extends ASTNode> T duplicate(T t) {
-		return (T) ASTNode.copySubtree(t.getAST(), t);
 	}
 }

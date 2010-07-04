@@ -119,6 +119,23 @@ public class Trace4jAstTest {
 				" } }");
 	}
 
+	/** https://bugs.eclipse.org/bugs/show_bug.cgi?id=317468 causes a trailing comma. */
+	@Test public void testEnum() {
+		assertWashes(Trace4jAst.BuiltInRewriters.ENTER_AND_EXTRACT_RETURN,
+				"enum A { A, B,; " + LOGGER_AT_END,
+				"enum A { A, B, }");
+	}
+
+	@Test public void testLoopFiddling() {
+		assertWashes(Trace4jAst.BuiltInRewriters.ENTER_AND_EXTRACT_RETURN,
+				"class A { int foo() { logger.trace(\"foo: entering\");" +
+				" while (true) {} " +
+				"}" + LOGGER_AT_END,
+				"class A { int foo() {" +
+				" while (true) {}" +
+				" } }");
+	}
+
 	private void assertWashes(Rewriter r, String expected, String actual) {
 		assertEquals(wash(expected), wash(new Trace4jAst(r, new NameGenerator() {
 			@Override public String apply(String prefix) {

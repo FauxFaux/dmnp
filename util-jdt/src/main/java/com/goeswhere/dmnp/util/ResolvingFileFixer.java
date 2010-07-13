@@ -44,14 +44,23 @@ public abstract class ResolvingFileFixer extends FileFixer {
 
 	/** Process parameters for main, then do work. */
 	public static void main(String[] args, Creator creator) throws InterruptedException {
-		if (3 != args.length) {
-			System.err.println("Usage: classpath sourcepath file");
+		main(null, 0, args, creator);
+	}
+
+	public static void main(String extra, int excount, String[] args, Creator creator) throws InterruptedException {
+		if (excount + 3 != args.length && excount + 4 != args.length) {
+			System.err.println("Usage: " +
+					(excount != 0 ? extra + " " : "") +
+					"classpath sourcepath file [-q]");
 			return;
 		}
 
-		final String[] cp = sysSplitWithWildcards(args[0], "jar");
-		final String[] sourcePath = sysSplit(args[1]);
-		final String path = args[2];
+		final String[] cp = sysSplitWithWildcards(args[excount + 0], "jar");
+		final String[] sourcePath = sysSplit(args[excount + 1]);
+		final String path = args[excount + 2];
+		final int qpos = excount + 3;
+		if (args.length > excount + 3 && "-q".equals(args[qpos]))
+			quiet = true;
 
 		loop(cp, sourcePath, path, creator);
 	}
@@ -87,7 +96,7 @@ public abstract class ResolvingFileFixer extends FileFixer {
 							if (!result.equals(read))
 								writer.offer(new Runnable() {
 									@Override public void run() {
-										System.out.println("Writing " + thispath);
+										msg(file, "Writing");
 										writeFile(new File(thispath), result);
 									}
 								});

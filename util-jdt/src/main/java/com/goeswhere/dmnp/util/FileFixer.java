@@ -38,6 +38,7 @@ import com.google.common.base.Function;
 abstract class FileFixer implements Function<String, String> {
 
 	private static ThreadPoolExecutor pool;
+	protected static boolean quiet;
 
 	protected static Iterable<File> fileOrFileList(final File f) {
 		return f.isDirectory() ? FileUtils.javaFilesIn(f) : Arrays.asList(f);
@@ -66,7 +67,10 @@ abstract class FileFixer implements Function<String, String> {
 		msg(file, "Finished");
 	}
 
-	private static void msg(File file, final String t) {
+	static void msg(File file, final String t) {
+		if (quiet)
+			return;
+
 		final int num = queueSizeEstimate();
 		final String q = approximately(num);
 

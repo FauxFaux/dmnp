@@ -210,6 +210,7 @@ public class ASTContainers {
 		return ai.expressions();
 	}
 
+	/** Eclipse bug(?) 319448 makes this bad for StringLiterals, don't use it. */
 	@SuppressWarnings("unchecked")
 	public static <T extends ASTNode> T duplicate(T t) {
 		return (T) ASTNode.copySubtree(t.getAST(), t);

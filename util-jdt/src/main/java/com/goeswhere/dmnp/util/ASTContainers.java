@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TagElement;
@@ -214,5 +215,63 @@ public class ASTContainers {
 	@SuppressWarnings("unchecked")
 	public static <T extends ASTNode> T duplicate(T t) {
 		return (T) ASTNode.copySubtree(t.getAST(), t);
+	}
+
+	/** {@link StringLiteral#setLiteralValue(String) but don't unnecessarily escape ' (Eclipse bug? 319900) */
+	public static void setLiteralValue(StringLiteral sl, String value) {
+		final StringBuilder b = new StringBuilder(value.length() + 10);
+		b.append("\"");
+		for (char c : value.toCharArray())
+			switch(c) {
+				case '\b' :
+					b.append("\\b");
+					break;
+				case '\t' :
+					b.append("\\t");
+					break;
+				case '\n' :
+					b.append("\\n");
+					break;
+				case '\f' :
+					b.append("\\f");
+					break;
+				case '\r' :
+					b.append("\\r");
+					break;
+				case '\"':
+					b.append("\\\"");
+					break;
+				case '\\':
+					b.append("\\\\");
+					break;
+				case '\0' :
+					b.append("\\0");
+					break;
+				case '\1' :
+					b.append("\\1");
+					break;
+				case '\2' :
+					b.append("\\2");
+					break;
+				case '\3' :
+					b.append("\\3");
+					break;
+				case '\4' :
+					b.append("\\4");
+					break;
+				case '\5' :
+					b.append("\\5");
+					break;
+				case '\6' :
+					b.append("\\6");
+					break;
+				case '\7' :
+					b.append("\\7");
+					break;
+				default:
+					b.append(c);
+			}
+		b.append("\"");
+		sl.setEscapedValue(b.toString());
 	}
 }

@@ -69,6 +69,15 @@ public class PrepLookupTest {
 					  SUFFIX + "String a = null; ponyBadger(\"a='\" + safeSQL(a) + \"'\"); } }");
 	}
 
+	@Test public void quotes() {
+		assertPrepsTo(SUFFIX + "int a = 5; DLookupInt(\"\",\"\",\"b='b' AND a=?\", new Object[] { a }); } }",
+					  SUFFIX + "int a = 5; DLookupInt(\"\",\"\",\"b='b' AND a=\" + a); } }");
+
+		assertPrepsTo(SUFFIX + "int a = 5; String b = null; DLookupInt(\"\",\"\",\"c='c'" +
+						" AND b=?\" + \" AND a=?\", new Object[] { b, a }); } }",
+				  SUFFIX + "int a = 5; String b = null; DLookupInt(\"\",\"\",\"c='c'" +
+				  		" AND b='\" + safeSQL(b) + \"' AND a=\" + a); } }");
+	}
 
 	private void assertDoesntChange(String src) {
  		assertPrepsTo(src, src);

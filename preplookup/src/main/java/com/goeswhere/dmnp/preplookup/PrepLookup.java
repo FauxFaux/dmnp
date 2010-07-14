@@ -3,6 +3,7 @@ package com.goeswhere.dmnp.preplookup;
 import static com.goeswhere.dmnp.util.ASTContainers.arguments;
 import static com.goeswhere.dmnp.util.ASTContainers.duplicate;
 import static com.goeswhere.dmnp.util.ASTContainers.expressions;
+import static com.goeswhere.dmnp.util.ASTContainers.setLiteralValue;
 import static com.goeswhere.dmnp.util.ASTWrapper.rewrite;
 
 import java.util.Iterator;
@@ -174,7 +175,7 @@ public class PrepLookup extends ResolvingFileFixer {
 								&& stringLiteralStartingWithQuote(full.get(i + 1))) {
 							StringLiteral sl = (StringLiteral) prev;
 							final String lit = sl.getLiteralValue();
-							sl.setLiteralValue(lit.substring(0, lit.length() - 1) + "?");
+							setLiteralValue(sl, lit.substring(0, lit.length() - 1) + "?");
 							removeFirstCharacter((StringLiteral) full.get(i + 1));
 						} else {
 							if (requireQuotes) {
@@ -193,7 +194,7 @@ public class PrepLookup extends ResolvingFileFixer {
 
 							if (prev instanceof StringLiteral) {
 								final StringLiteral slprev = (StringLiteral) prev;
-								slprev.setLiteralValue(slprev.getLiteralValue() + "?");
+								setLiteralValue(slprev, slprev.getLiteralValue() + "?");
 							} else {
 								final StringLiteral nsl = ast.newStringLiteral();
 								nsl.setLiteralValue("?");

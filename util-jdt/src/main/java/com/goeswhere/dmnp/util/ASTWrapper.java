@@ -20,9 +20,12 @@ import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.PrimitiveType;
@@ -37,9 +40,12 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 /** Various utilities for converting source to one of the object representations. */
 public class ASTWrapper {
@@ -53,6 +59,12 @@ public class ASTWrapper {
 				"java.util.StringBuilder",
 				"java.util.StringBuffer");
 
+	private static final Function<IBinding, String> NAME_BINDING = new Function<IBinding, String>() {
+        @Override
+        public String apply(IBinding from) {
+            return from.getName();
+        }
+    };
 
 	/** Return the Java 5 CU for the string. */
 	 public static CompilationUnit compile(String c) {
@@ -130,6 +142,22 @@ public class ASTWrapper {
 			+ "(" + FJava.intersperse(d.parameters(), ", ") + ")";
 	}
 
+   /** Fully qualified signature of a method */
+    public static String signature(final IMethodBinding d) {
+        final ITypeBinding rt = d.getReturnType();
+
+        final List<String> paramTypes = Lists.transform(Arrays.asList(d.getParameterTypes()), NAME_BINDING);
+        final int mod = d.getModifiers();
+        return
+            (Modifier.isPublic(mod) ? " public" : "") +
+            (Modifier.isProtected(mod) ? " protected" : "") +
+            (Modifier.isPrivate(mod) ? " private" : "") +
+            (Modifier.isFinal(mod) ? " final" : "") +
+            (Modifier.isStatic(mod) ? " static" : "") +
+            (!d.isConstructor() ? " " + rt.getName() : "")
+            + " " + d.getName()
+            + "(" + Joiner.on(", ").join(paramTypes) + ")";
+    }
 
 	public static MethodDeclaration extractSingleMethod(final String classBody) {
 		return extractSingleMethod(classBody, null, null);

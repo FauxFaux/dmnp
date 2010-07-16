@@ -20,6 +20,7 @@
 		<module>expr</module>
 		<module>ue</module>
 		<module>inlineret</module>
+		<module>listcalls</module>
 		<module>preplookup</module>
 		<module>refcheckan</module>
 		<module>schema</module>

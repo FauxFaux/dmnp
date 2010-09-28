@@ -3,9 +3,12 @@ package com.goeswhere.dmnp.preplookup;
 import static com.goeswhere.dmnp.util.TestUtils.cleanWhitespace;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Map;
+
 import org.junit.Test;
 
 import com.goeswhere.dmnp.util.TestUtils;
+import com.google.common.collect.ImmutableMap;
 
 public class PrepLookupTest {
 	private static final String SUFFIX = "import java.util.Date;" +
@@ -62,8 +65,14 @@ public class PrepLookupTest {
 		assertDoesntChange(SUFFIX + "String a = null; DLookupInt(\"\",\"\",\"a=\" + safeSQL(a) + \" and b=5\"); } }");
 	}
 
+	@Test public void dontDamageNoChangesQuotes() {
+		assertDoesntChange(SUFFIX + "int a = 0; String b = null;"
+				+ "DLookupInt(\"\",\"\",\"a='\" + a + \"' AND b=\" + b); } }");
+	}
+
+
 	@Test public void otherFunc() {
-		assertPrepsTo("pony", 0,
+		assertPrepsTo(ImmutableMap.of("pony", 0),
 				SUFFIX + "String a = null; ponyBadger(\"a=?\"," +
 							" new Object[] { a }); } }",
 					  SUFFIX + "String a = null; ponyBadger(\"a='\" + safeSQL(a) + \"'\"); } }");
@@ -84,14 +93,14 @@ public class PrepLookupTest {
  	}
 
 	private void assertPrepsTo(String expected, String actual) {
-		assertPrepsTo("DLookup", 2, expected, actual);
+		assertPrepsTo(ImmutableMap.of("DLookup", 2), expected, actual);
 	}
 
-	private void assertPrepsTo(String func, int i, String expected, String actual) {
-		assertEquals(cleanWhitespace(expected), cleanWhitespace(go(func, i, actual)));
+	private void assertPrepsTo(Map<String, Integer> func, String expected, String actual) {
+		assertEquals(cleanWhitespace(expected), cleanWhitespace(go(func, actual)));
 	}
 
-	private String go(String func, int i, String src) {
-		return new PrepLookup(EMPTY, EMPTY, "A", TestUtils.EMPTY_LOCK, func, i).apply(src);
+	private String go(Map<String, Integer> func, String src) {
+		return new PrepLookup(EMPTY, EMPTY, "A", TestUtils.EMPTY_LOCK, func).apply(src);
 	}
 }

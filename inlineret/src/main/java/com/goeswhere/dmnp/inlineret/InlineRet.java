@@ -1,12 +1,12 @@
 package com.goeswhere.dmnp.inlineret;
 
 import static com.goeswhere.dmnp.util.ASTWrapper.doesNothingUseful;
+import static com.goeswhere.dmnp.util.ASTWrapper.prev;
 import static com.goeswhere.dmnp.util.ASTWrapper.removeFragment;
 import static com.goeswhere.dmnp.util.ASTWrapper.removeFromParent;
 import static com.goeswhere.dmnp.util.ASTWrapper.returnsVoid;
 import static com.goeswhere.dmnp.util.ASTWrapper.rewrite;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
@@ -24,11 +24,9 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
-import com.goeswhere.dmnp.util.ASTContainers;
-import com.goeswhere.dmnp.util.Containers;
+import com.goeswhere.dmnp.util.ASTWrapper.FirstElementOfBlock;
 import com.goeswhere.dmnp.util.ResolvingFileFixer;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
@@ -139,26 +137,5 @@ class InlineRet extends ResolvingFileFixer {
 		});
 
 		return rewrite(src, cu);
-	}
-
-	private static class FirstElementOfBlock extends IllegalArgumentException {
-		FirstElementOfBlock(String s) {
-			super(s);
-		}
-	}
-
-	private static ASTNode prev(Statement retur) {
-		final ASTNode par = retur.getParent();
-		if (!(par instanceof Block))
-			throw new IllegalArgumentException("Parent isn't a block: " + Containers.classAndToString(par));
-		final List<Statement> stats = ASTContainers.statements((Block) par);
-		final int ind = stats.indexOf(retur);
-		if (0 == ind)
-			throw new FirstElementOfBlock("Statement is first element of block");
-
-		if (-1 == ind)
-			throw new AssertionError();
-
-		return stats.get(ind - 1);
 	}
 }

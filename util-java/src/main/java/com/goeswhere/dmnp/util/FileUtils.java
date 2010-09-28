@@ -25,6 +25,8 @@ import com.google.common.collect.Iterables;
 
 public class FileUtils {
 
+	private static final int BLOCK = 1024 * 8;
+
 	private final static Charset DEFAULT_ENCODING = Charsets.UTF_8;
 
 	public static final Function<File, String> ABSOLUTE_PATH = new Function<File, String>() {
@@ -62,16 +64,14 @@ public class FileUtils {
 
 	/** CLOSES THE FILEREADER */
 	public static String consumeFile(final Reader fileReader) throws IOException {
-		final int block = 1024 * 10;
-		final StringBuilder fileData = new StringBuilder(block);
+		final StringBuilder fileData = new StringBuilder(BLOCK);
 		try {
 			final BufferedReader reader = new BufferedReader(fileReader);
 			try {
-				char[] buf = new char[block];
-				int numRead = 0;
-				while ((numRead = reader.read(buf)) != -1) {
+				final char[] buf = new char[BLOCK];
+				int numRead;
+				while ((numRead = reader.read(buf)) != -1)
 					fileData.append(buf, 0, numRead);
-				}
 			} finally {
 				reader.close();
 			}
@@ -121,7 +121,8 @@ public class FileUtils {
 	public static Iterable<File> filesIn(final File root, final FileFilter ffun) {
 		final FileFilter ff = new FileFilter() {
 			@Override public boolean accept(File pathname) {
-				return pathname.isDirectory() || ffun.accept(pathname);
+				return !pathname.isHidden()
+					&& (pathname.isDirectory() || ffun.accept(pathname));
 			}
 		};
 
@@ -188,5 +189,17 @@ public class FileUtils {
 	/** Split by the {@link File#separatorChar}. */
 	public static String[] sysSplit(final String string) {
 		return string.split(Pattern.quote(File.pathSeparator));
+	}
+
+	public static void write(File f, InputStream is) throws IOException {
+		final FileOutputStream fos = new FileOutputStream(f);
+		try {
+			final byte[] buf = new byte[BLOCK];
+			int numRead;
+			while ((numRead = is.read(buf)) != -1)
+				fos.write(buf, 0, numRead);
+		} finally {
+			fos.close();
+		}
 	}
 }

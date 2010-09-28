@@ -8,10 +8,13 @@ import static com.goeswhere.dmnp.util.ASTWrapper.rewrite;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -23,31 +26,53 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.StringLiteral;
+import org.jetbrains.annotations.Nullable;
 
 import com.goeswhere.dmnp.util.ASTAllVisitor;
 import com.goeswhere.dmnp.util.ASTContainers;
 import com.goeswhere.dmnp.util.ResolvingFileFixer;
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.Lists;
 
 public class PrepLookup extends ResolvingFileFixer {
-	private final String functionPrefix;
-	private final int targetArg;
+	private final Map<String,Integer> functionPrefix;
+	private final String safeSQL;
+	private final String dateFormat;
 
 	protected PrepLookup(String[] classpath, String[] sourcepath,
-			String unitName, Lock compilerLock, String function, int targetArg) {
-		super(classpath, sourcepath,  unitName, compilerLock);
-		this.functionPrefix = function;
-		this.targetArg = targetArg;
+			String unitName, Lock compilerLock, Map<String, Integer> function) {
+		this(classpath, sourcepath, unitName, compilerLock, function,
+				getProperty("safesql"), getProperty("dateformat"));
 	}
 
+	PrepLookup(String[] classpath, String[] sourcepath,
+			String unitName, Lock compilerLock, Map<String, Integer> function,
+			String safeSQL, String dateFormat) {
+		super(classpath, sourcepath,  unitName, compilerLock);
+		this.functionPrefix = function;
+		this.safeSQL = safeSQL;
+		this.dateFormat = dateFormat;
+	}
+
+	private static ImmutableMap<String, Integer> parseFunction(String function) {
+		final Builder<String, Integer> ma = ImmutableMap.builder();
+		for (String s : function.split(",")) {
+			String[] par = s.split("=");
+			if (2 != par.length)
+				throw new IllegalArgumentException("Function spec: name=skipargs[,name=skipargs]*");
+			ma.put(par[0], Integer.parseInt(par[1]));
+		}
+		return ma.build();
+	}
 
 	public static void main(final String[] args) throws InterruptedException {
-		main("functionPrefix argnum", 2, args, new Creator() {
+		main("functionPrefix", 1, args, new Creator() {
 			@Override public Function<String, String> create(String[] cp,
 					String[] sourcePath, String unitName, Lock compileLock) {
 				return new PrepLookup(cp, sourcePath, unitName, compileLock,
-						args[0], Integer.parseInt(args[1]));
+						parseFunction(args[0]));
 			}
 		});
 
@@ -73,7 +98,7 @@ public class PrepLookup extends ResolvingFileFixer {
 
 	@Override public String apply(String from) {
 		// optimisation
-		if (!from.contains(functionPrefix))
+		if (!containsAny(from))
 			return from;
 
 		final CompilationUnit cu = compile(from);
@@ -82,9 +107,10 @@ public class PrepLookup extends ResolvingFileFixer {
 		cu.accept(new ASTAllVisitor() {
 
 			@Override public void visitMethodInvocation(MethodInvocation mi) {
-				if (!mi.getName().getIdentifier().startsWith(functionPrefix)
-						|| targetArg + 1 != mi.arguments().size())
+				final Entry<String, Integer> relevant = getRelevant(mi);
+				if (null == relevant)
 					return;
+				final int targetArg = relevant.getValue();
 
 				final List<Expression> args = ASTContainers.arguments(mi);
 				Expression ex = args.get(targetArg);
@@ -101,7 +127,7 @@ public class PrepLookup extends ResolvingFileFixer {
 					final InfixExpression ie = (InfixExpression) ex;
 					if (!ie.getOperator().equals(Operator.PLUS)) {
 						noninfix.incrementAndGet();
-						System.err.println("Not plus? " + ie);
+						report("Not plus? " + ie, cu, ie);
 						return;
 					}
 
@@ -116,6 +142,7 @@ public class PrepLookup extends ResolvingFileFixer {
 					final List<Expression> binds = Lists.newArrayListWithCapacity(parts);
 					final List<Expression> newExpression = Lists.newArrayListWithCapacity(parts);
 
+					boolean flagNextForRemovalOfQuote = false;
 					for (int i = 0; i < parts; ++i) {
 						Expression curr = full.get(i);
 
@@ -123,6 +150,10 @@ public class PrepLookup extends ResolvingFileFixer {
 						if (curr instanceof StringLiteral) {
 							final StringLiteral nsl = ast.newStringLiteral();
 							nsl.setEscapedValue(((StringLiteral) curr).getEscapedValue());
+							if (flagNextForRemovalOfQuote) {
+								flagNextForRemovalOfQuote = false;
+								removeFirstCharacter(nsl);
+							}
 							newExpression.add(nsl);
 							continue;
 						}
@@ -140,8 +171,8 @@ public class PrepLookup extends ResolvingFileFixer {
 						if (curr instanceof MethodInvocation) {
 							final MethodInvocation ci = (MethodInvocation) curr;
 							final String functionName = ci.getName().getIdentifier();
-							final boolean df = "dateformat".equalsIgnoreCase(functionName);
-							final boolean ssq = "safesql".equalsIgnoreCase(functionName);
+							final boolean df = isDateFormat(functionName);
+							final boolean ssq = isSQLEscape(functionName);
 							final List<Expression> arg = arguments(ci);
 
 							if (1 == arg.size() && (df || ssq)) {
@@ -156,8 +187,8 @@ public class PrepLookup extends ResolvingFileFixer {
 							final ITypeBinding tb = curr.resolveTypeBinding();
 							if (unsafeTypeBinding(tb)) {
 								if (!(curr instanceof SimpleName))
-									System.err.println("Not safely mappable type '" + tb.getName() + "' for "
-										+ curr + " in "+ mi);
+									report("Not safely mappable type '" + tb.getName() + "' for "
+										+ curr, mi, cu, curr);
 								type.incrementAndGet();
 								return;
 							}
@@ -176,11 +207,12 @@ public class PrepLookup extends ResolvingFileFixer {
 							StringLiteral sl = (StringLiteral) prev;
 							final String lit = sl.getLiteralValue();
 							setLiteralValue(sl, lit.substring(0, lit.length() - 1) + "?");
-							removeFirstCharacter((StringLiteral) full.get(i + 1));
+							flagNextForRemovalOfQuote = true;
 						} else {
 							if (requireQuotes) {
 								badstrings.incrementAndGet();
-								System.err.println("Expecting " + full.get(i) + " to be surrounded by ''s in " + mi);
+								Expression that = full.get(i);
+								report("Expecting " + that + " to be surrounded by ''s in " + mi, cu, that);
 								return;
 							}
 
@@ -246,12 +278,39 @@ public class PrepLookup extends ResolvingFileFixer {
 					noninfix.incrementAndGet();
 				} else {
 					noninfix.incrementAndGet();
-					System.err.println("What the: " + mi);
+					report("What the: " + mi, cu, mi);
 				}
 			}
 		});
 
 		return rewrite(from, cu);
+	}
+
+	private void report(String msg, CompilationUnit cu, ASTNode item) {
+		System.err.println(msg + bracketedFileLocation(cu, item));
+	}
+
+	private void report(String msg, ASTNode source, CompilationUnit cu, ASTNode item) {
+		System.err.println(msg + " in" + bracketedFileLocation(cu, item) + " " + source);
+	}
+
+	private String bracketedFileLocation(CompilationUnit cu, ASTNode item) {
+		return " (" + fileLocation(cu, item) + ")";
+	}
+
+	private boolean isSQLEscape(final String functionName) {
+		return safeSQL.equalsIgnoreCase(functionName);
+	}
+
+	private boolean isDateFormat(final String functionName) {
+		return dateFormat.equalsIgnoreCase(functionName);
+	}
+
+	private boolean containsAny(String from) {
+		for (String s : functionPrefix.keySet())
+			if (from.contains(s))
+				return true;
+		return false;
 	}
 
 	private void removeFirstCharacter(StringLiteral sl) {
@@ -292,8 +351,19 @@ public class PrepLookup extends ResolvingFileFixer {
 		return true;
 	}
 
+	private @Nullable Entry<String, Integer> getRelevant(final MethodInvocation mi) {
+		for (Entry<String, Integer> a : functionPrefix.entrySet())
+			if (mi.getName().getIdentifier().startsWith(a.getKey())
+					&& a.getValue() == mi.arguments().size() - 1)
+				return a;
+		return null;
+	}
 
 	private static boolean unsafeTypeBinding(final ITypeBinding ty) {
 		return !ty.isPrimitive() && !ty.getName().equals("java.util.Date");
+	}
+
+	private static String getProperty(String name) {
+		return System.getProperty(name, name);
 	}
 }

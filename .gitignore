@@ -4,3 +4,4 @@ jar
 target
 .classpath
 .project
+hotspot.log

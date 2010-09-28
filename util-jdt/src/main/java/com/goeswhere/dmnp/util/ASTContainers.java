@@ -11,6 +11,7 @@ import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CatchClause;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
@@ -33,6 +34,7 @@ import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -63,6 +65,11 @@ public class ASTContainers {
 	@SuppressWarnings("unchecked")
 	public static Iterable<Expression> arguments(ConstructorInvocation d) {
 		return d.arguments();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<Expression> arguments(ClassInstanceCreation cic) {
+		return cic.arguments();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -118,6 +125,11 @@ public class ASTContainers {
 	@SuppressWarnings("unchecked")
 	public static List<IExtendedModifier> modifiers(VariableDeclarationStatement b) {
 		return b.modifiers();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<Type> superInterfaceTypes(TypeDeclaration td) {
+		return td.superInterfaceTypes();
 	}
 
 	/** Examine the statements between two statements' ancestors,
@@ -273,5 +285,9 @@ public class ASTContainers {
 			}
 		b.append("\"");
 		sl.setEscapedValue(b.toString());
+	}
+
+	public static String normaliseWhitespace(String src) {
+		return ASTWrapper.compile(src).toString();
 	}
 }

@@ -18,17 +18,46 @@ public abstract class SimpleFileFixer extends FileFixer {
 		Function<String, String> create();
 	}
 
+	private static final ThreadLocal<String> FILE_NAME = new ThreadLocal<String>();
+
 	protected SimpleFileFixer() {
 		// reducing visibility
 	}
 
+	public static void main(String[] args, final Class<? extends Function<String, String>> c) throws InterruptedException {
+		main(null, 0, args, new Creator() {
+			@Override public Function<String, String> create() {
+				try {
+					return c.newInstance();
+				} catch (InstantiationException e) {
+					throw new RuntimeException(e);
+				} catch (IllegalAccessException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+	}
+
 	public static void main(String[] args, final Creator creator) throws InterruptedException {
-		if (1 != args.length) {
-			System.err.println("Usage: path");
+		main(null, 0, args, creator);
+	}
+
+	public static void main(String extra, int excount, String[] args, final Creator creator) throws InterruptedException {
+		if (excount + 1 != args.length && excount + 2 != args.length) {
+
+			System.err.println("Usage: " +
+					(excount != 0 ? extra + " " : "") +
+					"path [-q]");
 			return;
 		}
 
-		loop(args[0], creator);
+		quietIfQ(args, excount + 1);
+
+		loop(args[excount], creator);
+	}
+
+	protected static String getFileName() {
+		return FILE_NAME.get();
 	}
 
 	protected static void loop(final String path, final Creator creator)
@@ -43,6 +72,7 @@ public abstract class SimpleFileFixer extends FileFixer {
 					try {
 						final String thispath = file.getAbsolutePath();
 						final String read = consumeFile(thispath);
+						FILE_NAME.set(path);
 
 						final String result = creator.create().apply(read);
 

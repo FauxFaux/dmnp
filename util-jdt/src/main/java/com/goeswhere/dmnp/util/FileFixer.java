@@ -90,5 +90,10 @@ abstract class FileFixer implements Function<String, String> {
 			return "~" + num;
 	}
 
+	protected static void quietIfQ(String[] args, final int qpos) {
+		if (args.length > qpos && "-q".equals(args[qpos]))
+			quiet = true;
+	}
+
 	protected abstract CompilationUnit compile(String src);
 }

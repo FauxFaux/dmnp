@@ -538,10 +538,7 @@ public class Trace4jAst extends SimpleFileFixer {
 	}
 
 	private static Name qualifiedName(AST ast, String... ar) {
-		Name n = ast.newSimpleName(ar[0]);
-		for (int i = 1; i < ar.length; ++i)
-			n = ast.newQualifiedName(n, ast.newSimpleName(ar[i]));
-		return n;
+		return ast.newName(ar);
 	}
 
 	private static ExpressionStatement log(AST ast, final String loggerName, final String identifier, final String msg) {

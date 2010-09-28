@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
@@ -101,7 +102,8 @@ public class ASTWrapper {
 		public final CompilationUnit cu;
 
 		public HadProblems(CompilationUnit cu) {
-			super("Compile had problems: " + Arrays.toString(cu.getProblems()));
+			super("Compile had problems " + ASTContainers.types(cu).get(0).getName()
+					+ ": " + Arrays.toString(cu.getProblems()));
 			this.cu = cu;
 		}
 	}
@@ -117,6 +119,29 @@ public class ASTWrapper {
 	public static CompilationUnit compile(String src, String[] classpath, String[] source) {
 		return compile(src, "OnlyNecessaryForPublicClasses", classpath, source);
 	}
+//
+//	private static final Map<List<String>, List<String>> EXPLODED_CLASSPATH = new MapMaker().makeComputingMap(
+//		new Function<List<String>, List<String>>() {
+//			@Override public List<String> apply(List<String> from) {
+//				final List<String> cp = Lists.newArrayList(from);
+//				try {
+//					File td = FileUtils.createTempDir();
+//					final Iterator<String> it = cp.iterator();
+//					while (it.hasNext()) {
+//						final String s = it.next();
+//						if (new File(s).isFile()) {
+//							ZipExploder.processFile(s, td);
+//							it.remove();
+//						}
+//					}
+//				} catch (IOException e) {
+//					throw new RuntimeException(e);
+//				} catch (FailedException e) {
+//					throw new RuntimeException(e);
+//				}
+//
+//			}
+//	});
 
 	/** If classpath == source == null, don't resolve bindings. Also ignores filename. */
 	public static CompilationUnit compile(String src, String filename, String[] classpath, String[] source) {
@@ -216,8 +241,20 @@ public class ASTWrapper {
 	}
 
 	public static String rewrite(final Document doc, final CompilationUnit changes) {
+		return edit(doc, changes.rewrite(doc, null));
+	}
+
+	public static String rewrite(final String src, final ASTRewrite rewrite) {
+		return rewrite(new Document(src), rewrite);
+	}
+
+	public static String rewrite(final Document doc, final ASTRewrite rewrite) {
+		return edit(doc, rewrite.rewriteAST(doc, null));
+	}
+
+	private static String edit(final Document doc, final TextEdit ed) {
 		try {
-			changes.rewrite(doc, null).apply(doc, TextEdit.UPDATE_REGIONS);
+			ed.apply(doc, TextEdit.UPDATE_REGIONS);
 		} catch (MalformedTreeException e) {
 			throw new RuntimeException(e);
 		} catch (BadLocationException e) {
@@ -284,5 +321,59 @@ public class ASTWrapper {
 			return true;
 
 		return false;
+	}
+
+	public static class FirstElementOfBlock extends IllegalArgumentException {
+		FirstElementOfBlock(String s) {
+			super(s);
+		}
+	}
+
+	public static class ParentIsntBlock extends IllegalArgumentException {
+		public ParentIsntBlock(String s) {
+			super(s);
+		}
+	}
+
+	private static enum MoveDirection {
+		BACKWARDS(-1) {
+			@Override boolean valid(List<Statement> stats, int ind) {
+				return ind != 0;
+			}
+		},
+		FORWARDS(1) {
+			@Override boolean valid(List<Statement> stats, int ind) {
+				return ind < stats.size() - 1;
+			}
+		},
+		;
+		final int cnt;
+		MoveDirection(int cnt) {
+			this.cnt = cnt;
+		}
+		abstract boolean valid(List<Statement> stats, int ind);
+	}
+
+	public static Statement prev(ASTNode a) {
+		return move(a, MoveDirection.BACKWARDS);
+	}
+
+	public static Statement next(ASTNode a) {
+		return move(a, MoveDirection.FORWARDS);
+	}
+
+	private static Statement move(ASTNode retur, MoveDirection d) {
+		final ASTNode par = retur.getParent();
+		if (!(par instanceof Block))
+			throw new ParentIsntBlock(Containers.classAndToString(par));
+		final List<Statement> stats = ASTContainers.statements((Block) par);
+		final int ind = stats.indexOf(retur);
+		if (!d.valid(stats, ind))
+			throw new FirstElementOfBlock("Statement is in the wrong place in the block");
+
+		if (-1 == ind)
+			throw new AssertionError();
+
+		return stats.get(ind + d.cnt);
 	}
 }

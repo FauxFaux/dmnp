@@ -12,6 +12,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 import com.google.common.base.Function;
@@ -28,6 +29,13 @@ public abstract class ResolvingFileFixer extends FileFixer {
 	public static interface Creator {
 		Function<String, String> create(String[] cp, String[] sourcePath, String unitName, Lock compileLock);
 	}
+
+	private static final ThreadLocal<String> FILE_NAME = new ThreadLocal<String>() {
+		/** Mostly for testing. */
+		@Override protected String initialValue() {
+			return "unknown";
+		}
+	};
 
 	private final String[] classpath;
 	private final String[] sourcepath;
@@ -58,13 +66,18 @@ public abstract class ResolvingFileFixer extends FileFixer {
 		final String[] cp = sysSplitWithWildcards(args[excount + 0], "jar");
 		final String[] sourcePath = sysSplit(args[excount + 1]);
 		final String path = args[excount + 2];
-		final int qpos = excount + 3;
-		if (args.length > excount + 3 && "-q".equals(args[qpos]))
-			quiet = true;
+		quietIfQ(args, excount + 3);
 
 		loop(cp, sourcePath, path, creator);
 	}
 
+	protected static String getFileName() {
+		return FILE_NAME.get();
+	}
+
+	protected static String fileLocation(final CompilationUnit cu, ASTNode s) {
+		return new File(getFileName()).getName() + ":" + cu.getLineNumber(s.getStartPosition());
+	}
 
 	private static void loop(final String[] cp, final String[] sourcePath, final String path, final Creator creator)
 			throws InterruptedException {
@@ -81,6 +94,7 @@ public abstract class ResolvingFileFixer extends FileFixer {
 						proc(file);
 						try {
 							final String thispath = file.getAbsolutePath();
+							FILE_NAME.set(thispath);
 							final String read;
 
 							final Lock rl = r.readLock();

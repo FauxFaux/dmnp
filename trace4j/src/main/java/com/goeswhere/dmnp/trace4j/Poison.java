@@ -1,10 +1,10 @@
 package com.goeswhere.dmnp.trace4j;
 
-import java.io.FileInputStream;
+import static com.goeswhere.dmnp.util.ASMWrapper.makeCn;
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -63,18 +63,6 @@ public class Poison implements ClassFileTransformer {
 		}
 	}
 
-	private static ClassNode makeCn(final String filename) throws FileNotFoundException, IOException {
-		final InputStream s = new FileInputStream(filename);
-
-		final ClassNode cn;
-		try {
-			cn = makeCn(s);
-		} finally {
-			s.close();
-		}
-		return cn;
-	}
-
 	@VisibleForTesting static byte[] addLogging(final ClassNode cn) {
 
 		final String loggerName = ensureLoggerName(cn);
@@ -103,10 +91,6 @@ public class Poison implements ClassFileTransformer {
 		final ClassWriter cw = new ClassWriter(0);
 		cn.accept(cw);
 		return cw.toByteArray();
-	}
-
-	private static ClassNode makeCn(InputStream file) throws IOException, FileNotFoundException {
-		return ASMWrapper.makeCn(new ClassReader(file));
 	}
 
 	private static InsnList generateLoggerCall(String loggerName, String classInternalName, String message) {

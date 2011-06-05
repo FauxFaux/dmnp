@@ -20,6 +20,7 @@
 		<module>expr</module>
 		<module>ue</module>
 		<module>inlineret</module>
+		<module>linenos</module>
 		<module>listcalls</module>
 		<module>preplookup</module>
 		<module>refcheckan</module>
@@ -44,11 +45,15 @@
 		</pluginManagement>
 	</build>
 
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.8.1</version>
+			<version>4.8.2</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

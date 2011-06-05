@@ -4,10 +4,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.goeswhere.dmnp</groupId>
-	<artifactId>trace4j</artifactId>
+	<artifactId>linenos</artifactId>
 	<packaging>jar</packaging>
 	<version>1.0-SNAPSHOT</version>
-	<name>log4j trace logs injector</name>
+	<name>Fix exceptions</name>
 	<parent>
 		<groupId>com.goeswhere.dmnp</groupId>
 		<artifactId>dmnp-parent</artifactId>
@@ -18,12 +18,6 @@
 			<groupId>com.goeswhere.dmnp</groupId>
 			<artifactId>util-asm</artifactId>
 			<version>1.0-SNAPSHOT</version>
-		</dependency>
-		<!-- Not actually required but cool to have packaged into the agent jar. -->
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.16</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -36,10 +30,10 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>com.goeswhere.dmnp.trace4j.Poison</mainClass>
+							<mainClass>com.goeswhere.dmnp.linenos.LineNos</mainClass>
 						</manifest>
 						<manifestEntries>
-							<Premain-Class>com.goeswhere.dmnp.trace4j.Poison</Premain-Class>
+							<Premain-Class>com.goeswhere.dmnp.linenos.LineNos</Premain-Class>
 						</manifestEntries>
 					</archive>
 				</configuration>

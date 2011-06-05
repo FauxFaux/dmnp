@@ -94,6 +94,10 @@ public class ASMContainers {
 		return hasBit(acc, Opcodes.ACC_FINAL);
 	}
 
+	public static boolean isAbstract(final int acc) {
+		return hasBit(acc, Opcodes.ACC_ABSTRACT);
+	}
+
 	public static String packageOf(ClassNode cn) {
 		return packageOf(cn.name);
 	}

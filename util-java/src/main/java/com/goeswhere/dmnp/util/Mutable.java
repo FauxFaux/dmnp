@@ -7,7 +7,7 @@ public class Mutable<T> implements Supplier<T> {
 	private T val;
 
 	public Mutable() {
-		// implict set(null)
+		this(null);
 	}
 
 	private Mutable(T t) {
@@ -24,5 +24,9 @@ public class Mutable<T> implements Supplier<T> {
 
 	public static <T> Mutable<T> of(T t) {
 		return new Mutable<T>(t);
+	}
+
+	public static <T> Mutable<T> create() {
+		return of(null);
 	}
 }

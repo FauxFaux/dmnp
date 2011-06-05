@@ -107,7 +107,7 @@ public class FileUtils {
 		return filesIn(new File(path), ext);
 	}
 
-	private static Iterable<File> filesIn(final File root, final String ext) {
+	public static Iterable<File> filesIn(final File root, final String ext) {
 		final String dottedex = "." + ext;
 
 		return filesIn(root, new FileFilter() {

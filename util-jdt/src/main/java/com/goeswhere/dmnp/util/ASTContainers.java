@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -70,6 +71,10 @@ public class ASTContainers {
 	@SuppressWarnings("unchecked")
 	public static List<Expression> arguments(ClassInstanceCreation cic) {
 		return cic.arguments();
+	}
+
+	public static List<SingleVariableDeclaration> arguments(MethodDeclaration md) {
+		return parameters(md);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -130,6 +135,11 @@ public class ASTContainers {
 	@SuppressWarnings("unchecked")
 	public static List<Type> superInterfaceTypes(TypeDeclaration td) {
 		return td.superInterfaceTypes();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<TypeParameter> typeParameters(TypeDeclaration parent) {
+		return parent.typeParameters();
 	}
 
 	/** Examine the statements between two statements' ancestors,

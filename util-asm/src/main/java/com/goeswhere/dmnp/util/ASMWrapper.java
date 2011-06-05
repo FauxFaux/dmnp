@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.ArrayList;
@@ -137,6 +138,22 @@ public class ASMWrapper {
 		@Override public CharSequence getCharContent(boolean ignoreEncodingErrors) {
 			return code;
 		}
+	}
+
+	public static ClassNode makeCn(final String filename) throws FileNotFoundException, IOException {
+		final InputStream s = new FileInputStream(filename);
+
+		final ClassNode cn;
+		try {
+			cn = makeCn(s);
+		} finally {
+			s.close();
+		}
+		return cn;
+	}
+
+	public static ClassNode makeCn(InputStream file) throws IOException, FileNotFoundException {
+		return ASMWrapper.makeCn(new ClassReader(file));
 	}
 
 	public static ClassNode makeCn(final ClassReader cr) {

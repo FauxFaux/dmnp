@@ -44,15 +44,12 @@ public class BlockDoerTest {
         for (int i = 0; i < REPETITIONS; ++i) {
             final Set<String> ret = Collections.newSetFromMap(new ConcurrentHashMap<>());
             Lock l = new ReentrantReadWriteLock().writeLock();
-            final BlockDoer d = BlockDoer.start(l);
-            try {
+            try (BlockDoer d = BlockDoer.start(l)) {
                 d.offer(new SaveString(ret, "here"));
                 Thread.sleep(r.nextInt(2));
                 d.offer(new SaveString(ret, "there"));
                 Thread.sleep(r.nextInt(2));
                 d.offer(new SaveString(ret, "everywhere"));
-            } finally {
-                d.close();
             }
 
             assertEquals(ImmutableSet.of("here", "there", "everywhere"), ret);

@@ -41,11 +41,8 @@ public class CloserTest {
     @Test
     public void testOne() {
         final List<Integer> res = Lists.newArrayList();
-        final Closer c = new Closer();
-        try {
+        try (Closer c = new Closer()) {
             c.add(new TestCloseable(res, 1));
-        } finally {
-            c.close();
         }
         assertEquals(Collections.singletonList(1), res);
     }
@@ -53,12 +50,9 @@ public class CloserTest {
     @Test
     public void testTwo() {
         final List<Integer> res = Lists.newArrayList();
-        final Closer c = new Closer();
-        try {
+        try (Closer c = new Closer()) {
             c.add(new TestCloseable(res, 1));
             c.add(new TestCloseable(res, 2));
-        } finally {
-            c.close();
         }
         assertEquals(Arrays.asList(2, 1), res);
     }

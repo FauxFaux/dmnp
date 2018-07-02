@@ -43,7 +43,7 @@ public class RefCheckArgNames {
     public static void main(String[] args) throws InterruptedException {
         final String[] sourcePath = sysSplit(args[0]);
         final SetMultimap<String, MethodDeclaration> methodLocations =
-                Multimaps.synchronizedSetMultimap(HashMultimap.<String, MethodDeclaration>create());
+                Multimaps.synchronizedSetMultimap(HashMultimap.create());
         final Set<String> calledMethods = Containers.newConcurrentHashSet();
         final Map<MethodDeclaration, String> location = Maps.newConcurrentMap();
 

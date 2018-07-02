@@ -109,9 +109,7 @@ public class DocCrap {
 
         try {
             cu.rewrite(doc, null).apply(doc, TextEdit.UPDATE_REGIONS);
-        } catch (MalformedTreeException e) {
-            throw new RuntimeException(e);
-        } catch (BadLocationException e) {
+        } catch (MalformedTreeException | BadLocationException e) {
             throw new RuntimeException(e);
         }
 

@@ -42,7 +42,7 @@ public class Trace4jAst extends SimpleFileFixer {
         String apply(String prefix);
     }
 
-    private static enum BuiltinNameGenerators implements NameGenerator {
+    private enum BuiltinNameGenerators implements NameGenerator {
         RANDOM {
             @Override
             public String apply(String prefix) {
@@ -252,7 +252,7 @@ public class Trace4jAst extends SimpleFileFixer {
     }
 
     @VisibleForTesting
-    static enum BuiltInRewriters implements Rewriter {
+    enum BuiltInRewriters implements Rewriter {
         /**
          * <code>T foo() { a(); return b(); }</code> to
          * <code>T foo() { try { enter(); a(); return b(); } finally { leave(); } }</code>

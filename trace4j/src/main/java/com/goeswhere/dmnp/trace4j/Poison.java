@@ -36,13 +36,10 @@ public class Poison implements ClassFileTransformer {
 
     private static void writeOut(final String filename, final byte[] byteArray) throws FileNotFoundException,
             IOException {
-        final OutputStream fos = new FileOutputStream(filename);
 
-        try {
+        try (OutputStream fos = new FileOutputStream(filename)) {
             fos.write(byteArray);
             fos.flush();
-        } finally {
-            fos.close();
         }
     }
 

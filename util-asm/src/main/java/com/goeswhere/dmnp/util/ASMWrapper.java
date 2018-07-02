@@ -103,11 +103,8 @@ public class ASMWrapper {
     }
 
     private static ClassNode load(File path) throws FileNotFoundException, IOException {
-        final FileInputStream is = new FileInputStream(path);
-        try {
+        try (FileInputStream is = new FileInputStream(path)) {
             return makeCn(new ClassReader(is));
-        } finally {
-            is.close();
         }
     }
 
@@ -126,13 +123,10 @@ public class ASMWrapper {
     }
 
     public static ClassNode makeCn(final String filename) throws FileNotFoundException, IOException {
-        final InputStream s = new FileInputStream(filename);
 
         final ClassNode cn;
-        try {
+        try (InputStream s = new FileInputStream(filename)) {
             cn = makeCn(s);
-        } finally {
-            s.close();
         }
         return cn;
     }

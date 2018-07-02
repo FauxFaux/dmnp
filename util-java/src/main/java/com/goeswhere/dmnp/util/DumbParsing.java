@@ -10,11 +10,8 @@ import java.io.IOException;
 public class DumbParsing {
     @Nullable
     static String packageOf(File f) throws IOException {
-        final BufferedReader br = new BufferedReader(new FileReader(f));
-        try {
+        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
             return packageOf(br);
-        } finally {
-            br.close();
         }
     }
 

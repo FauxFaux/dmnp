@@ -34,7 +34,7 @@ public class SlowDSL extends ResolvingFileFixer {
 
     @Override
     public String apply(final String src) {
-        return go(src, Collections.<String>emptySet());
+        return go(src, Collections.emptySet());
     }
 
     private static class InitialiserStripper extends ASTVisitor {

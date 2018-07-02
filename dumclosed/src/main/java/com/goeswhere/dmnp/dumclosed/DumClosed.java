@@ -42,7 +42,7 @@ public class DumClosed {
         return new Marker<>(names, what);
     }
 
-    private static enum Badness {
+    private enum Badness {
         /**
          * {@code X x = ; ...;} falls out of scope without close(), no assumption, just wrong.
          */

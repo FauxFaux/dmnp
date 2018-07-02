@@ -175,7 +175,7 @@ public class ASTWrapper {
         return extractMethodImpl(classBody, classpath, source, ExtractMethodMode.SINGLE);
     }
 
-    private static enum ExtractMethodMode {
+    private enum ExtractMethodMode {
         SINGLE, LAST
     }
 
@@ -239,9 +239,7 @@ public class ASTWrapper {
     private static String edit(final Document doc, final TextEdit ed) {
         try {
             ed.apply(doc, TextEdit.UPDATE_REGIONS);
-        } catch (MalformedTreeException e) {
-            throw new RuntimeException(e);
-        } catch (BadLocationException e) {
+        } catch (MalformedTreeException | BadLocationException e) {
             throw new RuntimeException(e);
         }
         return doc.get();
@@ -319,7 +317,7 @@ public class ASTWrapper {
         }
     }
 
-    private static enum MoveDirection {
+    private enum MoveDirection {
         BACKWARDS(-1) {
             @Override
             boolean valid(List<Statement> stats, int ind) {

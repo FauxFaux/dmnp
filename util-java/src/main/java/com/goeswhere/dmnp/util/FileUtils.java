@@ -58,14 +58,11 @@ public class FileUtils {
     public static String consumeFile(final Reader fileReader) throws IOException {
         final StringBuilder fileData = new StringBuilder(BLOCK);
         try {
-            final BufferedReader reader = new BufferedReader(fileReader);
-            try {
+            try (BufferedReader reader = new BufferedReader(fileReader)) {
                 final char[] buf = new char[BLOCK];
                 int numRead;
                 while ((numRead = reader.read(buf)) != -1)
                     fileData.append(buf, 0, numRead);
-            } finally {
-                reader.close();
             }
         } finally {
             fileReader.close();
@@ -178,14 +175,11 @@ public class FileUtils {
     }
 
     public static void write(File f, InputStream is) throws IOException {
-        final FileOutputStream fos = new FileOutputStream(f);
-        try {
+        try (FileOutputStream fos = new FileOutputStream(f)) {
             final byte[] buf = new byte[BLOCK];
             int numRead;
             while ((numRead = is.read(buf)) != -1)
                 fos.write(buf, 0, numRead);
-        } finally {
-            fos.close();
         }
     }
 }

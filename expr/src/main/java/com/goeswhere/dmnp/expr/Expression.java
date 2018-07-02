@@ -41,7 +41,7 @@ public class Expression {
     private static Iterable<SList<Pred>> toExpression(InsnList instructions) {
         return recurse(new InsnIter(instructions),
                 new ArrayDeque<>(),
-                SList.<Pred>empty());
+                SList.empty());
     }
 
     static SList<SList<Pred>> recurse(InsnIter code, Deque<Token> localStack, SList<Pred> soFar) {

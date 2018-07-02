@@ -53,10 +53,8 @@ public class BlockDoer extends Thread implements Closeable {
                     wl.unlock();
                 }
             }
-        } catch (InterruptedException ignored) {
+        } catch (InterruptedException | Shutdown ignored) {
             // assume cancelled
-        } catch (Shutdown ignored) {
-            // by command
         }
     }
 

@@ -23,7 +23,7 @@ public class ListCalls extends ResolvingFileFixer {
     }
 
     public static void main(final String[] args) throws InterruptedException {
-        final Set<String> results = Collections.newSetFromMap(Maps.<String, Boolean>newConcurrentMap());
+        final Set<String> results = Collections.newSetFromMap(Maps.newConcurrentMap());
 
         main(args, (cp, sourcePath, unitName, compileLock) -> new ListCalls(cp, sourcePath, unitName, compileLock, results));
 

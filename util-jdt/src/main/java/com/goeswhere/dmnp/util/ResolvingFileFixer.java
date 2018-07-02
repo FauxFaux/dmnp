@@ -87,9 +87,8 @@ public abstract class ResolvingFileFixer extends FileFixer {
         final ExecutorService es = service();
         final ReadWriteLock r = new ReentrantReadWriteLock(true);
         final Lock wl = r.writeLock();
-        final BlockDoer writer = BlockDoer.start(wl);
 
-        try {
+        try (BlockDoer writer = BlockDoer.start(wl)) {
             for (final File file : fileOrFileList(f)) {
                 es.submit(() -> {
                     proc(file);
@@ -122,8 +121,6 @@ public abstract class ResolvingFileFixer extends FileFixer {
             }
 
             awaitTermination(es);
-        } finally {
-            writer.close();
         }
     }
 

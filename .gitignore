@@ -6,3 +6,5 @@ target
 .project
 hotspot.log
 *.db*
+*.iml
+.idea/

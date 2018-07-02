@@ -34,7 +34,7 @@ import java.util.concurrent.ExecutionException;
 class LineNos implements ClassFileTransformer {
     private final String prefixString;
 
-    public static void main(final String[] args) throws FileNotFoundException, IOException {
+    public static void main(final String[] args) throws IOException {
         for (final String filename : args) {
             Files.write(new File(filename).toPath(), messWith(ASMWrapper.makeCn(filename)));
         }
@@ -102,7 +102,7 @@ class LineNos implements ClassFileTransformer {
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-                            ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+                            ProtectionDomain protectionDomain, byte[] classfileBuffer) {
         if ("java/lang/StackTraceElement".equals(className))
             return fixSTE(makeCn(classfileBuffer));
         if (!className.startsWith(prefixString))

@@ -298,10 +298,8 @@ public class ASTWrapper {
         if (e instanceof SimpleName)
             return true;
 
-        if (null != e.resolveConstantExpressionValue())
-            return true;
+        return null != e.resolveConstantExpressionValue();
 
-        return false;
     }
 
     public static class FirstElementOfBlock extends IllegalArgumentException {

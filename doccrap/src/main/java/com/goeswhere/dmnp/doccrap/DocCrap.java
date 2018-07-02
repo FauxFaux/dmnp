@@ -144,7 +144,7 @@ class DocCrap {
                     processFile(child);
     }
 
-    private static void processFile(File child) throws FileNotFoundException, IOException {
+    private static void processFile(File child) throws IOException {
         final String res = cleanCU(FileUtils.consumeFile(new FileReader(child)));
         FileWriter fw = new FileWriter(child);
         try {

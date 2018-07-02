@@ -29,7 +29,7 @@ class LineNosTest {
         }
     }
 
-    private void invoke(final Class<A> clazz, final String method, Mutable<ClassNode> cn) throws IOException, Throwable {
+    private void invoke(final Class<A> clazz, final String method, Mutable<ClassNode> cn) throws Throwable {
         final byte[] a = LineNos.messWith(ASMWrapper.makeCn(new ClassReader(clazz.getName())));
         cn.set(ASMWrapper.makeCn(new ClassReader(a)));
         LineNos.contentResolver.put(clazz.getName(), cn.get());

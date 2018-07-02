@@ -112,7 +112,7 @@ class UETest {
 
     @Disabled("Not done yet")
     @Test
-    void throworlog() throws Exception {
+    void throworlog() {
         assertEquals(ImmutableSet.of(), go("if (false) throw a; logger.warn(\"\", a);}"));
     }
 

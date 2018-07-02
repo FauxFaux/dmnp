@@ -32,7 +32,7 @@ public class Trace4jAst extends SimpleFileFixer {
         }
 
         @Override
-        public String getLineDelimiter(int line) throws BadLocationException {
+        public String getLineDelimiter(int line) {
             return " ";
         }
     }

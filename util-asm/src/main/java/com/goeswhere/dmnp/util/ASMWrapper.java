@@ -74,7 +74,7 @@ public class ASMWrapper {
         }
     }
 
-    private static void readFiles(final File dir, Map<String, ClassNode> ret) throws FileNotFoundException,
+    private static void readFiles(final File dir, Map<String, ClassNode> ret) throws
             IOException {
         for (File fi : dir.listFiles((fdir, fname) -> fname.endsWith(".class"))) {
             final ClassNode cn = load(fi);
@@ -101,7 +101,7 @@ public class ASMWrapper {
         return compileSingle(ma.group(1), src);
     }
 
-    private static ClassNode load(File path) throws FileNotFoundException, IOException {
+    private static ClassNode load(File path) throws IOException {
         try (FileInputStream is = new FileInputStream(path)) {
             return makeCn(new ClassReader(is));
         }
@@ -121,7 +121,7 @@ public class ASMWrapper {
         }
     }
 
-    public static ClassNode makeCn(final String filename) throws FileNotFoundException, IOException {
+    public static ClassNode makeCn(final String filename) throws IOException {
 
         final ClassNode cn;
         try (InputStream s = new FileInputStream(filename)) {
@@ -130,7 +130,7 @@ public class ASMWrapper {
         return cn;
     }
 
-    private static ClassNode makeCn(InputStream file) throws IOException, FileNotFoundException {
+    private static ClassNode makeCn(InputStream file) throws IOException {
         return ASMWrapper.makeCn(new ClassReader(file));
     }
 

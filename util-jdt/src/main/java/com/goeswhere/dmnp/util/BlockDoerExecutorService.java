@@ -15,7 +15,7 @@ import java.util.concurrent.locks.Lock;
 class BlockDoerExecutorService extends AbstractExecutorService {
 
     private final BlockDoer doer;
-    private AtomicBoolean shutdown = new AtomicBoolean();
+    private final AtomicBoolean shutdown = new AtomicBoolean();
 
     private BlockDoerExecutorService(Lock l) {
         doer = new BlockDoer(l);

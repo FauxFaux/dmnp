@@ -40,7 +40,7 @@ public class ASMContainers {
     private static final Function<MethodNode, String> NAME_METHODNODE = from -> from.name;
 
     public static List<String> fieldNames(final ClassNode cn) {
-        return fields(cn).stream().map(NAME_FIELDNODE::apply).collect(Collectors.toList());
+        return fields(cn).stream().map(NAME_FIELDNODE).collect(Collectors.toList());
     }
 
     public static Map<String, MethodNode> methodMap(final ClassNode cn) {

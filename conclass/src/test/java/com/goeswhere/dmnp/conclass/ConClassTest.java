@@ -46,7 +46,7 @@ class ConClassTest {
     }
 
     @Test
-    void noFiles() throws IOException, FailedException, InterruptedException {
+    void noFiles() throws IOException, FailedException {
         final File root = FileUtils.createTempDir();
         try {
             assertThrows(IllegalArgumentException.class, () ->
@@ -57,7 +57,7 @@ class ConClassTest {
     }
 
     @Test
-    void tooManyFiles() throws IOException, FailedException, InterruptedException {
+    void tooManyFiles() throws IOException, FailedException {
         final File root = FileUtils.createTempDir();
         try {
             FileUtils.writeFile(new File(root, "Left.java"), CONST_CONTENTS);

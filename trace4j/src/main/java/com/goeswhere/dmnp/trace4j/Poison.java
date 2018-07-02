@@ -32,12 +32,12 @@ class Poison implements ClassFileTransformer {
 
     private final String prefixString;
 
-    public static void main(final String[] args) throws FileNotFoundException, IOException {
+    public static void main(final String[] args) throws IOException {
         final String filename = args[0];
         writeOut(filename, addLogging(makeCn(filename)));
     }
 
-    private static void writeOut(final String filename, final byte[] byteArray) throws FileNotFoundException,
+    private static void writeOut(final String filename, final byte[] byteArray) throws
             IOException {
 
         try (OutputStream fos = new FileOutputStream(filename)) {
@@ -170,7 +170,7 @@ class Poison implements ClassFileTransformer {
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-                            ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+                            ProtectionDomain protectionDomain, byte[] classfileBuffer) {
         if (!className.startsWith(prefixString))
             return classfileBuffer;
         return addLogging(ASMWrapper.makeCn(new ClassReader(classfileBuffer)));

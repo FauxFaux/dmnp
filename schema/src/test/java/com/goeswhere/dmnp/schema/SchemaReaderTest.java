@@ -2,13 +2,13 @@ package com.goeswhere.dmnp.schema;
 
 import com.goeswhere.dmnp.schema.SchemaReader.Outputter;
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SchemaReaderTest {
     static class ListOutputter implements Outputter {

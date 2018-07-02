@@ -1,14 +1,14 @@
 package com.goeswhere.dmnp.util;
 
 import com.google.common.collect.Iterables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 
 import static com.goeswhere.dmnp.util.FileUtils.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class FileUtilsTest {

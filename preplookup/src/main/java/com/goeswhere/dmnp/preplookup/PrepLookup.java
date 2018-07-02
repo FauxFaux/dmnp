@@ -3,7 +3,6 @@ package com.goeswhere.dmnp.preplookup;
 import com.goeswhere.dmnp.util.ASTAllVisitor;
 import com.goeswhere.dmnp.util.ASTContainers;
 import com.goeswhere.dmnp.util.ResolvingFileFixer;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.Lists;

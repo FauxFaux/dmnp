@@ -1,16 +1,13 @@
 package com.goeswhere.dmnp.util;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 /**
@@ -27,9 +24,10 @@ public class ASTWrapperTest {
         assertTopLevelTypeCalledC("enum C { FOO, BAR }");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void compileError() {
-        ASTWrapper.compile("class C {");
+        assertThrows(IllegalArgumentException.class, () ->
+                ASTWrapper.compile("class C {"));
     }
 
     private static void assertTopLevelTypeCalledC(final String c) {
@@ -44,12 +42,14 @@ public class ASTWrapperTest {
         assertEquals("foo", ASTWrapper.extractSingleMethod("void foo() {}").getName().getIdentifier());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void extractMethodNotThere() {
-        ASTWrapper.extractSingleMethod("");
+
+        assertThrows(IllegalArgumentException.class, () ->
+                ASTWrapper.extractSingleMethod(""));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void extractMethodTwo() {
         ASTWrapper.extractSingleMethod("void foo() {} void bar() {}");
     }
@@ -58,7 +58,7 @@ public class ASTWrapperTest {
     public void signature() {
         final String nam = "private static Class<? extends Object> " +
                 "foo(String s, Integer a, Map<String,Long> m)";
-        assertEquals(nam, ASTWrapper.signature(ASTWrapper.extractSingleMethod(nam + " {}")));
+        assertThrows(IllegalArgumentException.class, () -> assertEquals(nam, ASTWrapper.signature(ASTWrapper.extractSingleMethod(nam + " {}"))));
     }
 
 }

@@ -1,10 +1,10 @@
 package com.goeswhere.dmnp.slowdat;
 
 import com.goeswhere.dmnp.util.TestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.goeswhere.dmnp.util.TestUtils.cleanWhitespace;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SlowDSLTest {
 

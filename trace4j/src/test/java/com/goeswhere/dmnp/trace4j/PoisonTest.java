@@ -4,7 +4,7 @@ import com.goeswhere.dmnp.util.ASMContainers;
 import com.goeswhere.dmnp.util.ASMWrapper;
 import com.goeswhere.dmnp.util.TerribleImplementation;
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.EmptyVisitor;
@@ -14,8 +14,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PoisonTest {
 

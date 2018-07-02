@@ -3,7 +3,6 @@ package com.goeswhere.dmnp.inlineret;
 import com.goeswhere.dmnp.util.ASTWrapper.*;
 import com.goeswhere.dmnp.util.ResolvingFileFixer;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import org.eclipse.jdt.core.dom.*;
 

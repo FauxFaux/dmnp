@@ -2,15 +2,14 @@ package com.goeswhere.dmnp.ue;
 
 import com.goeswhere.dmnp.util.ASTWrapper;
 import com.google.common.collect.ImmutableSet;
-import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class UETest {
@@ -111,7 +110,7 @@ public class UETest {
     }
 
 
-    @Ignore("Not done yet")
+    @Disabled("Not done yet")
     @Test
     public void throworlog() throws Exception {
         assertEquals(ImmutableSet.of(), go("if (false) throw a; logger.warn(\"\", a);}"));

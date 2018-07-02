@@ -2,7 +2,6 @@ package com.goeswhere.dmnp.ue;
 
 import com.goeswhere.dmnp.util.ASTWrapper;
 import com.goeswhere.dmnp.util.FileUtils;
-import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 import java.io.File;

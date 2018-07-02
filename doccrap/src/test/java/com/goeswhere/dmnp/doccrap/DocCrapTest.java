@@ -1,9 +1,9 @@
 package com.goeswhere.dmnp.doccrap;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.goeswhere.dmnp.doccrap.DocCrap.cleanCU;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DocCrapTest {
     @Test

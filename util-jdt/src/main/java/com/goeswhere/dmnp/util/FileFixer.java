@@ -4,7 +4,6 @@ import com.google.common.base.Function;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;

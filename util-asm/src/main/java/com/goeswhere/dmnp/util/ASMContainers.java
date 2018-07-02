@@ -1,11 +1,9 @@
 package com.goeswhere.dmnp.util;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

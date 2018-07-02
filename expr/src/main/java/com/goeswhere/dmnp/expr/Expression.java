@@ -1,7 +1,6 @@
 package com.goeswhere.dmnp.expr;
 
 import com.goeswhere.dmnp.util.*;
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;

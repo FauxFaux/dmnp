@@ -2,7 +2,7 @@ package com.goeswhere.dmnp.linenos;
 
 import com.goeswhere.dmnp.util.ASMWrapper;
 import com.goeswhere.dmnp.util.Mutable;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 
@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class LineNosTest {
 

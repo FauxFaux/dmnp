@@ -6,7 +6,6 @@ import com.google.common.collect.*;
 import org.eclipse.jdt.core.dom.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;

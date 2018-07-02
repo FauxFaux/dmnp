@@ -2,12 +2,12 @@ package com.goeswhere.dmnp.preplookup;
 
 import com.goeswhere.dmnp.util.TestUtils;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
 import static com.goeswhere.dmnp.util.TestUtils.cleanWhitespace;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PrepLookupTest {
     private static final String SUFFIX = "import java.util.Date;" +

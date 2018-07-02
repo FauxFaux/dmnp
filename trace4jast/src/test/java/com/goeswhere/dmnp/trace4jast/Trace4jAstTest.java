@@ -1,10 +1,9 @@
 package com.goeswhere.dmnp.trace4jast;
 
-import com.goeswhere.dmnp.trace4jast.Trace4jAst.NameGenerator;
 import com.goeswhere.dmnp.trace4jast.Trace4jAst.Rewriter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Trace4jAstTest {
     private static final String PREFIX = "class A { int foo() { ";

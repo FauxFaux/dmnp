@@ -4,7 +4,6 @@ import com.goeswhere.dmnp.util.ASTAllVisitor;
 import com.goeswhere.dmnp.util.ASTContainers;
 import com.goeswhere.dmnp.util.ASTWrapper;
 import com.goeswhere.dmnp.util.SimpleFileFixer;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.eclipse.jdt.core.dom.*;

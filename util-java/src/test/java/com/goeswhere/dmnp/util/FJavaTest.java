@@ -1,8 +1,7 @@
 package com.goeswhere.dmnp.util;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,7 +10,7 @@ import java.util.List;
 import static com.goeswhere.dmnp.util.FJava.cons;
 import static com.goeswhere.dmnp.util.FJava.intersperse;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FJavaTest {
 

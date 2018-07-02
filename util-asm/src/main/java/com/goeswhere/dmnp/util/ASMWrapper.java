@@ -1,6 +1,5 @@
 package com.goeswhere.dmnp.util;
 
-import com.google.common.base.Predicate;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;

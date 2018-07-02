@@ -2,12 +2,13 @@ package com.goeswhere.dmnp.conclass;
 
 import com.goeswhere.dmnp.util.FailedException;
 import com.goeswhere.dmnp.util.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 public class ConClassTest {
@@ -44,23 +45,25 @@ public class ConClassTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void noFiles() throws IOException, FailedException, InterruptedException {
         final File root = FileUtils.createTempDir();
         try {
-            ConClass.go("Const", root.getAbsolutePath());
+            assertThrows(IllegalArgumentException.class, () ->
+                    ConClass.go("Const", root.getAbsolutePath()));
         } finally {
             FileUtils.recursivelyDelete(root);
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void tooManyFiles() throws IOException, FailedException, InterruptedException {
         final File root = FileUtils.createTempDir();
         try {
             FileUtils.writeFile(new File(root, "Left.java"), CONST_CONTENTS);
             FileUtils.writeFile(new File(root, "Right.java"), CONST_CONTENTS);
-            ConClass.go("Const", root.getAbsolutePath());
+            assertThrows(IllegalArgumentException.class, () ->
+                    ConClass.go("Const", root.getAbsolutePath()));
         } finally {
             FileUtils.recursivelyDelete(root);
         }

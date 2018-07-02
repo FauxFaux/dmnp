@@ -2,13 +2,13 @@ package com.goeswhere.dmnp.util;
 
 import com.google.common.collect.Iterables;
 import org.eclipse.jdt.core.dom.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static com.goeswhere.dmnp.util.ASTContainers.sharedParent;
 import static com.goeswhere.dmnp.util.ASTContainers.statements;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ASTContainersTest {
     @Test

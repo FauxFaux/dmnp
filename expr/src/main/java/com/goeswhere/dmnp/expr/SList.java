@@ -3,119 +3,123 @@ package com.goeswhere.dmnp.expr;
 import java.util.Iterator;
 
 class SList<T> implements
-		Iterable<T>,
-		Comparable<Iterable<T>> {
-	private final T value;
-	private final SList<T> tail;
+        Iterable<T>,
+        Comparable<Iterable<T>> {
+    private final T value;
+    private final SList<T> tail;
 
-	private SList(SList<T> tail, T t) {
-		this.tail = tail;
-		this.value = t;
-	}
+    private SList(SList<T> tail, T t) {
+        this.tail = tail;
+        this.value = t;
+    }
 
-	static <V> SList<V> head(V v) {
-		return new SList<V>(null, v);
-	}
+    static <V> SList<V> head(V v) {
+        return new SList<V>(null, v);
+    }
 
-	SList<T> plus(T u) {
-		return new SList<T>(this, u);
-	}
+    SList<T> plus(T u) {
+        return new SList<T>(this, u);
+    }
 
-	SList<T> plusAll(Iterable<T> l) {
-		SList<T> ret = this;
-		for (T q : l)
-			ret = ret.plus(q);
-		return ret;
-	}
+    SList<T> plusAll(Iterable<T> l) {
+        SList<T> ret = this;
+        for (T q : l)
+            ret = ret.plus(q);
+        return ret;
+    }
 
-	@Override
-	public Iterator<T> iterator() {
-		return new Iterator<T>() {
-			SList<T> list = SList.this;
-			@Override public boolean hasNext() {
-				return null != list;
-			}
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator<T>() {
+            SList<T> list = SList.this;
 
-			@Override public T next() {
-				final T q = list.value;
-				list = list.tail;
-				return q;
-			}
+            @Override
+            public boolean hasNext() {
+                return null != list;
+            }
 
-			@Override public void remove() {
-				throw new UnsupportedOperationException();
-			}
-		};
-	}
+            @Override
+            public T next() {
+                final T q = list.value;
+                list = list.tail;
+                return q;
+            }
 
-	@Override
-	public String toString() {
-		final StringBuilder sb = new StringBuilder("[");
-		Iterator<T> it = iterator();
-		if (it.hasNext())
-			sb.append(it.next());
-		while (it.hasNext())
-			sb.append(", ").append(it.next());
-		sb.append("]");
-		return sb.toString();
-	}
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
+    }
 
-	public static <V> SList<V> empty() {
-		return new SList<V>(null, null) {
-			@Override SList<V> plus(V t) {
-				return head(t);
-			}
-		};
-	}
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("[");
+        Iterator<T> it = iterator();
+        if (it.hasNext())
+            sb.append(it.next());
+        while (it.hasNext())
+            sb.append(", ").append(it.next());
+        sb.append("]");
+        return sb.toString();
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((tail == null) ? 0 : tail.hashCode());
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
-		return result;
-	}
+    public static <V> SList<V> empty() {
+        return new SList<V>(null, null) {
+            @Override
+            SList<V> plus(V t) {
+                return head(t);
+            }
+        };
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((tail == null) ? 0 : tail.hashCode());
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
+    }
 
-		final SList<?> other = (SList<?>)obj;
-		if (tail == null) {
-			if (other.tail != null)
-				return false;
-		} else if (!tail.equals(other.tail))
-			return false;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
 
-		if (value == null) {
-			if (other.value != null)
-				return false;
-		} else if (!value.equals(other.value))
-			return false;
-		return true;
-	}
+        final SList<?> other = (SList<?>) obj;
+        if (tail == null) {
+            if (other.tail != null)
+                return false;
+        } else if (!tail.equals(other.tail))
+            return false;
 
-	@Override
-	public int compareTo(Iterable<T> other) {
-		Iterator<T> us = iterator(), them = other.iterator();
-		while (us.hasNext() && them.hasNext()) {
-			final T un = us.next(), tn = them.next();
-			if (un instanceof Comparable<?>) {
-				@SuppressWarnings("unchecked")
-				final int comp =
-					((Comparable<T>)un).compareTo(tn);
-				if (0 != comp)
-					return comp;
-			}
-		}
+        if (value == null) {
+            if (other.value != null)
+                return false;
+        } else if (!value.equals(other.value))
+            return false;
+        return true;
+    }
 
-		if (them.hasNext())
-			return 1;
-		if (us.hasNext())
-			return -1;
+    @Override
+    public int compareTo(Iterable<T> other) {
+        Iterator<T> us = iterator(), them = other.iterator();
+        while (us.hasNext() && them.hasNext()) {
+            final T un = us.next(), tn = them.next();
+            if (un instanceof Comparable<?>) {
+                @SuppressWarnings("unchecked") final int comp =
+                        ((Comparable<T>) un).compareTo(tn);
+                if (0 != comp)
+                    return comp;
+            }
+        }
 
-		return 0;
-	}
+        if (them.hasNext())
+            return 1;
+        if (us.hasNext())
+            return -1;
+
+        return 0;
+    }
 }

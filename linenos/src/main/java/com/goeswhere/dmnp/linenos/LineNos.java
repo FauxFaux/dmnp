@@ -1,5 +1,21 @@
 package com.goeswhere.dmnp.linenos;
 
+import com.goeswhere.dmnp.util.ASMContainers;
+import com.goeswhere.dmnp.util.ASMWrapper;
+import com.goeswhere.dmnp.util.InsnIter;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.MapMaker;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.*;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -12,177 +28,161 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LineNumberNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.VarInsnNode;
-
-import com.goeswhere.dmnp.util.ASMContainers;
-import com.goeswhere.dmnp.util.ASMWrapper;
-import com.goeswhere.dmnp.util.InsnIter;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.MapMaker;
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
-
-/** $ java -Xbootclasspath/p:linenos.jar -javaagent:linenos.jar=package/to/break */
+/**
+ * $ java -Xbootclasspath/p:linenos.jar -javaagent:linenos.jar=package/to/break
+ */
 public class LineNos implements ClassFileTransformer {
-	private final String prefixString;
+    private final String prefixString;
 
-	public static void main(final String[] args) throws FileNotFoundException, IOException {
-		for (final String filename : args)
-			ByteStreams.write(messWith(ASMWrapper.makeCn(filename)), Files.newOutputStreamSupplier(new File(filename)));
-	}
+    public static void main(final String[] args) throws FileNotFoundException, IOException {
+        for (final String filename : args)
+            ByteStreams.write(messWith(ASMWrapper.makeCn(filename)), Files.newOutputStreamSupplier(new File(filename)));
+    }
 
-	public static void premain(String agentArguments, Instrumentation instrumentation) throws UnmodifiableClassException {
-		instrumentation.addTransformer(new LineNos(agentArguments), true);
-		try {
-			ClassLoader.getSystemClassLoader().loadClass(LineNos.class.getName());
-		} catch (ClassNotFoundException e) {
-			throw new IllegalStateException("Couldn't find ourselves");
-		}
-		instrumentation.retransformClasses(StackTraceElement.class);
-	}
+    public static void premain(String agentArguments, Instrumentation instrumentation) throws UnmodifiableClassException {
+        instrumentation.addTransformer(new LineNos(agentArguments), true);
+        try {
+            ClassLoader.getSystemClassLoader().loadClass(LineNos.class.getName());
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("Couldn't find ourselves");
+        }
+        instrumentation.retransformClasses(StackTraceElement.class);
+    }
 
-	public static void printStackTrace(Throwable t) {
-		System.err.println(t);
-		for (StackTraceElement e : t.getStackTrace()) {
-			final int ln = e.getLineNumber();
-			if (ln < 1000)
-				System.err.println("\tat " + e);
-			else {
-				System.err.println("\tat " + new StackTraceElement(e.getClassName(), e.getMethodName(), e.getFileName(), ln % 1000) +
-						attemptingTo(e, ln));
-			}
-		}
-	}
+    public static void printStackTrace(Throwable t) {
+        System.err.println(t);
+        for (StackTraceElement e : t.getStackTrace()) {
+            final int ln = e.getLineNumber();
+            if (ln < 1000)
+                System.err.println("\tat " + e);
+            else {
+                System.err.println("\tat " + new StackTraceElement(e.getClassName(), e.getMethodName(), e.getFileName(), ln % 1000) +
+                        attemptingTo(e, ln));
+            }
+        }
+    }
 
-	@VisibleForTesting static byte[] messWith(ClassNode cn) {
-		for (final MethodNode m : ASMContainers.methods(cn)) {
-			final ListMultimap<Integer, AbstractInsnNode> create = LinkedListMultimap.create();
+    @VisibleForTesting
+    static byte[] messWith(ClassNode cn) {
+        for (final MethodNode m : ASMContainers.methods(cn)) {
+            final ListMultimap<Integer, AbstractInsnNode> create = LinkedListMultimap.create();
 
-			{
-				int current = 0;
-				for (AbstractInsnNode ins : new InsnIter(m.instructions)) {
-					if (ins instanceof LineNumberNode)
-						current = ((LineNumberNode) ins).line;
-					else if (ins instanceof MethodInsnNode)
-						create.put(current, ins);
-				}
-			}
+            {
+                int current = 0;
+                for (AbstractInsnNode ins : new InsnIter(m.instructions)) {
+                    if (ins instanceof LineNumberNode)
+                        current = ((LineNumberNode) ins).line;
+                    else if (ins instanceof MethodInsnNode)
+                        create.put(current, ins);
+                }
+            }
 
-			for (Entry<Integer, Collection<AbstractInsnNode>> a : create.asMap().entrySet()) {
-				final Collection<AbstractInsnNode> interesting = a.getValue();
-				if (interesting.size() <= 1)
-					continue;
-				int running = 0;
-				for (AbstractInsnNode ins : interesting) {
-					final int line = a.getKey() + ((++running) * 1000);
-					final LabelNode ln = new LabelNode(new Label());
+            for (Entry<Integer, Collection<AbstractInsnNode>> a : create.asMap().entrySet()) {
+                final Collection<AbstractInsnNode> interesting = a.getValue();
+                if (interesting.size() <= 1)
+                    continue;
+                int running = 0;
+                for (AbstractInsnNode ins : interesting) {
+                    final int line = a.getKey() + ((++running) * 1000);
+                    final LabelNode ln = new LabelNode(new Label());
 
-					m.instructions.insertBefore(ins, ln);
-					m.instructions.insertBefore(ins, new LineNumberNode(line, ln));
-				}
-			}
-		}
+                    m.instructions.insertBefore(ins, ln);
+                    m.instructions.insertBefore(ins, new LineNumberNode(line, ln));
+                }
+            }
+        }
 
-		return byteArray(cn);
-	}
+        return byteArray(cn);
+    }
 
-	private LineNos(String prefixString) {
-		this.prefixString = prefixString;
-	}
+    private LineNos(String prefixString) {
+        this.prefixString = prefixString;
+    }
 
-	@Override
-	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-		if ("java/lang/StackTraceElement".equals(className))
-			return fixSTE(makeCn(classfileBuffer));
-		if (!className.startsWith(prefixString))
-			return classfileBuffer;
-		final byte[] messed = messWith(makeCn(classfileBuffer));
-		contentResolver.put(className.replace('/', '.'), makeCn(messed));
-		return messed;
-	}
+    @Override
+    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+                            ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+        if ("java/lang/StackTraceElement".equals(className))
+            return fixSTE(makeCn(classfileBuffer));
+        if (!className.startsWith(prefixString))
+            return classfileBuffer;
+        final byte[] messed = messWith(makeCn(classfileBuffer));
+        contentResolver.put(className.replace('/', '.'), makeCn(messed));
+        return messed;
+    }
 
-	@VisibleForTesting static AbstractInsnNode fromLine(ClassNode cn, int line) {
-		boolean now = false;
-		for (final MethodNode m : ASMContainers.methods(cn)) {
-			for (AbstractInsnNode ins : new InsnIter(m.instructions)) {
-				if (ins instanceof LineNumberNode)
-					now = line == ((LineNumberNode) ins).line;
-				else if (now)
-					return ins;
-			}
-		}
+    @VisibleForTesting
+    static AbstractInsnNode fromLine(ClassNode cn, int line) {
+        boolean now = false;
+        for (final MethodNode m : ASMContainers.methods(cn)) {
+            for (AbstractInsnNode ins : new InsnIter(m.instructions)) {
+                if (ins instanceof LineNumberNode)
+                    now = line == ((LineNumberNode) ins).line;
+                else if (now)
+                    return ins;
+            }
+        }
 
-		throw new IllegalArgumentException("Couldn't find line " + line);
-	}
+        throw new IllegalArgumentException("Couldn't find line " + line);
+    }
 
-	private byte[] fixSTE(ClassNode ste) {
-		final MethodNode m = ASMContainers.methodMap(ste).get("toString");
-		m.instructions.clear();
-		m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-		m.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, LineNos.class.getName().replace('.', '/'),
-				"stackTraceElementToString", "(Ljava/lang/StackTraceElement;)Ljava/lang/String;"));
-		m.instructions.add(new InsnNode(Opcodes.ARETURN));
-		return byteArray(ste);
-	}
+    private byte[] fixSTE(ClassNode ste) {
+        final MethodNode m = ASMContainers.methodMap(ste).get("toString");
+        m.instructions.clear();
+        m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        m.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, LineNos.class.getName().replace('.', '/'),
+                "stackTraceElementToString", "(Ljava/lang/StackTraceElement;)Ljava/lang/String;"));
+        m.instructions.add(new InsnNode(Opcodes.ARETURN));
+        return byteArray(ste);
+    }
 
-	/** implements {@link #fixSTE(ClassNode)}'s generated call */
-	public static String stackTraceElementToString(StackTraceElement e) {
-		  return e.getClassName() + "." + e.getMethodName() +
-		            (e.isNativeMethod() ? "(Native Method)" :
-		             (e.getFileName() != null && e.getLineNumber() >= 0 ?
-		              "(" + e.getFileName() + ":" + (e.getLineNumber() > 1000 ? e.getLineNumber() % 1000 : e.getLineNumber()) + ")" :
-		              (e.getFileName() != null ?  "("+e.getFileName()+")" : "(Unknown Source)")))
-		              + (e.getLineNumber() > 1000 ? attemptingTo(e, e.getLineNumber()) : "");
-	}
+    /**
+     * implements {@link #fixSTE(ClassNode)}'s generated call
+     */
+    public static String stackTraceElementToString(StackTraceElement e) {
+        return e.getClassName() + "." + e.getMethodName() +
+                (e.isNativeMethod() ? "(Native Method)" :
+                        (e.getFileName() != null && e.getLineNumber() >= 0 ?
+                                "(" + e.getFileName() + ":" + (e.getLineNumber() > 1000 ? e.getLineNumber() % 1000 : e.getLineNumber()) + ")" :
+                                (e.getFileName() != null ? "(" + e.getFileName() + ")" : "(Unknown Source)")))
+                + (e.getLineNumber() > 1000 ? attemptingTo(e, e.getLineNumber()) : "");
+    }
 
 
-	@VisibleForTesting static final Map<String, ClassNode> contentResolver =
-			new MapMaker().softValues().makeComputingMap(new Function<String, ClassNode>() {
-		@Override
-		public ClassNode apply(String name) {
-			try {
-				return ASMWrapper.makeCn(new ClassReader(name));
-			} catch (IOException e) {
-				throw new IllegalStateException(e);
-			}
-		}
-	});
+    @VisibleForTesting
+    static final Map<String, ClassNode> contentResolver =
+            new MapMaker().softValues().makeComputingMap(new Function<String, ClassNode>() {
+                @Override
+                public ClassNode apply(String name) {
+                    try {
+                        return ASMWrapper.makeCn(new ClassReader(name));
+                    } catch (IOException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }
+            });
 
-	@VisibleForTesting static String prettify(AbstractInsnNode ins, int ln) {
-		if (ins instanceof MethodInsnNode) {
-			final MethodInsnNode mi = (MethodInsnNode) ins;
-			return "invoke " + mi.name + " #" + (ln / 1000);
-		}
+    @VisibleForTesting
+    static String prettify(AbstractInsnNode ins, int ln) {
+        if (ins instanceof MethodInsnNode) {
+            final MethodInsnNode mi = (MethodInsnNode) ins;
+            return "invoke " + mi.name + " #" + (ln / 1000);
+        }
 
-		return ins.toString();
-	}
+        return ins.toString();
+    }
 
-	private static String attemptingTo(StackTraceElement e, final int ln) {
-		return ", attempting to " + prettify(LineNos.fromLine(contentResolver.get(e.getClassName()), ln), ln);
-	}
+    private static String attemptingTo(StackTraceElement e, final int ln) {
+        return ", attempting to " + prettify(LineNos.fromLine(contentResolver.get(e.getClassName()), ln), ln);
+    }
 
-	private static byte[] byteArray(ClassNode cn) {
-		final ClassWriter cw = new ClassWriter(0);
-		cn.accept(cw);
-		return cw.toByteArray();
-	}
+    private static byte[] byteArray(ClassNode cn) {
+        final ClassWriter cw = new ClassWriter(0);
+        cn.accept(cw);
+        return cw.toByteArray();
+    }
 
-	private ClassNode makeCn(byte[] classfileBuffer) {
-		return ASMWrapper.makeCn(new ClassReader(classfileBuffer));
-	}
+    private ClassNode makeCn(byte[] classfileBuffer) {
+        return ASMWrapper.makeCn(new ClassReader(classfileBuffer));
+    }
 }

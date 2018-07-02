@@ -1,7 +1,7 @@
 package com.goeswhere.dmnp.util;
 
 public class FailedException extends Exception {
-	public FailedException(String string) {
-		super(string);
-	}
+    public FailedException(String string) {
+        super(string);
+    }
 }

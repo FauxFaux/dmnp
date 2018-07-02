@@ -13,7 +13,7 @@ public class BetweenIterable<T> implements Iterable<T> {
      * of([1,2,3,4,5,6,7], 2, 6) == [3,4,5]
      */
     public static <U> BetweenIterable<U> of(Iterable<? extends U> it, U start, U end) {
-        return new BetweenIterable<U>(it, start, end);
+        return new BetweenIterable<>(it, start, end);
     }
 
     private BetweenIterable(Iterable<? extends T> lis, T start, T end) {

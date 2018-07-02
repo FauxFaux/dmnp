@@ -54,9 +54,8 @@ public class UsefulExceptionChecker {
             System.exit(-1);
         } else {
             final ExecutorService pool = Executors.newCachedThreadPool();
-            final List<List<String>> reses = new ArrayList<List<String>>(args.length);
-            for (int i = 0; i < args.length; ++i)
-                reses.add(Collections.synchronizedList(new ArrayList<String>()));
+            final List<List<String>> reses = new ArrayList<>(args.length);
+            for (String arg1 : args) reses.add(Collections.synchronizedList(new ArrayList<>()));
 
             for (int i = 0; i < args.length; ++i) {
                 final String arg = args[i];

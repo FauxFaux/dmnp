@@ -55,7 +55,7 @@ public class ASTWrapper {
         parser.setSource(c.toCharArray());
 
         final Map<String, String> ops =
-                new HashMap<String, String>(javaCoreOptions());
+                new HashMap<>(javaCoreOptions());
 
         for (Entry<String, String> a : ops.entrySet())
             if ("warning".equals(a.getValue()))
@@ -187,7 +187,7 @@ public class ASTWrapper {
     private static MethodDeclaration extractMethodImpl(final String classBody,
                                                        String[] classpath, String[] source, final ExtractMethodMode single) {
         CompilationUnit cu = compile("class A { " + classBody + " }", classpath, source);
-        final Mutable<MethodDeclaration> mut = new Mutable<MethodDeclaration>();
+        final Mutable<MethodDeclaration> mut = new Mutable<>();
         cu.accept(new ASTVisitor() {
             @Override
             public boolean visit(MethodDeclaration m) {

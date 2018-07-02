@@ -19,7 +19,7 @@ public abstract class SimpleFileFixer extends FileFixer {
         Function<String, String> create();
     }
 
-    private static final ThreadLocal<String> FILE_NAME = new ThreadLocal<String>();
+    private static final ThreadLocal<String> FILE_NAME = new ThreadLocal<>();
 
     protected SimpleFileFixer() {
         // reducing visibility

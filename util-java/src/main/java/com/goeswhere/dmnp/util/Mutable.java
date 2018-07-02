@@ -24,7 +24,7 @@ public class Mutable<T> implements Supplier<T> {
     }
 
     public static <T> Mutable<T> of(T t) {
-        return new Mutable<T>(t);
+        return new Mutable<>(t);
     }
 
     public static <T> Mutable<T> create() {

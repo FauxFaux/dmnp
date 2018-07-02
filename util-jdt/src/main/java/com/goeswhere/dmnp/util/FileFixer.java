@@ -50,7 +50,7 @@ abstract class FileFixer implements Function<String, String> {
         final int nThreads = Runtime.getRuntime().availableProcessors() * 4;
         return pool = new ThreadPoolExecutor(nThreads, nThreads,
                 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>());
+                new LinkedBlockingQueue<>());
     }
 
     protected static void err(File file, Exception e) {

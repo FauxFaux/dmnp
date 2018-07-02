@@ -23,7 +23,7 @@ public class FJava {
     }
 
     public static <T> Iterable<T> filter(Iterable<T> it, Predicate<T> pred) {
-        final List<T> ret = new ArrayList<T>();
+        final List<T> ret = new ArrayList<>();
         for (T t : it)
             if (pred.apply(t))
                 ret.add(t);
@@ -31,7 +31,7 @@ public class FJava {
     }
 
     public static <R, T> Iterable<R> map(Iterable<T> col, Function<T, R> f) {
-        final List<R> ret = new ArrayList<R>();
+        final List<R> ret = new ArrayList<>();
         for (T t : col)
             ret.add(f.apply(t));
         return ret;

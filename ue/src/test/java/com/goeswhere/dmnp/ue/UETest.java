@@ -122,7 +122,7 @@ public class UETest {
     }
 
     private static Set<String> goClass(final String contents) {
-        final Set<String> res = new HashSet<String>();
+        final Set<String> res = new HashSet<>();
         final CompilationUnit cu = ASTWrapper.compile(contents);
         final Reporter rep = new Reporter() {
             @Override

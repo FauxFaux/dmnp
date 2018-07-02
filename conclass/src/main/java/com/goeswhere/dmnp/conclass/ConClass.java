@@ -30,7 +30,7 @@ public class ConClass {
     }
 
     static String go(final String classname, final String path) throws InterruptedException, IOException {
-        final ConcurrentHashMap<TypeDeclaration, File> candidates = new ConcurrentHashMap<TypeDeclaration, File>();
+        final ConcurrentHashMap<TypeDeclaration, File> candidates = new ConcurrentHashMap<>();
         final Set<String> used = findUses(classname, path, candidates);
 
         switch (candidates.size()) {
@@ -94,7 +94,7 @@ public class ConClass {
      */
     private static Set<String> findUses(final String classname, final String path,
                                         final ConcurrentHashMap<TypeDeclaration, File> candidates) throws InterruptedException {
-        final Set<String> used = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+        final Set<String> used = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
         final ExecutorService ex = Executors.newFixedThreadPool(10);
 

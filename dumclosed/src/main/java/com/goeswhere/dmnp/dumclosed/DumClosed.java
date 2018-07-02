@@ -39,7 +39,7 @@ public class DumClosed {
     }
 
     <U> Marker<U> markerOf(Map<String, U> names, U what) {
-        return new Marker<U>(names, what);
+        return new Marker<>(names, what);
     }
 
     private static enum Badness {
@@ -117,7 +117,7 @@ public class DumClosed {
                             if (!(ty.getType() instanceof SimpleType) || !isRS((SimpleType) ty.getType()))
                                 return true;
 
-                            final Map<String, Badness> names = new HashMap<String, Badness>();
+                            final Map<String, Badness> names = new HashMap<>();
                             for (VariableDeclarationFragment a : ASTContainers.fragments(ty))
                                 names.put(a.getName().getIdentifier(), Badness.REALLY);
 

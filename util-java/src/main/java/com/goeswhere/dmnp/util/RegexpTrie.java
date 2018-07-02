@@ -38,7 +38,7 @@ public class RegexpTrie {
         if (from.equals(CMap.NULLARY)) // # terminator
             return "";
 
-        final List<String> aalt = new ArrayList<String>(), acc = new ArrayList<String>();
+        final List<String> aalt = new ArrayList<>(), acc = new ArrayList<>();
         boolean $q = false;
         for (char c : from.keySet()) {
             final char quoted = quotemeta(c);

@@ -36,7 +36,7 @@ class VisitCatchClauses extends ASTVisitor {
     }
 
     static void accept(final CompilationUnit cu, final Reporter rep) {
-        final Set<String> fields = new HashSet<String>();
+        final Set<String> fields = new HashSet<>();
         cu.accept(new LoggerFieldFinder(fields));
         cu.accept(new VisitCatchClauses(rep, Collections.unmodifiableSet(fields)));
     }

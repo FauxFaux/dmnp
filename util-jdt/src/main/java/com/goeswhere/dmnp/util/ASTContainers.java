@@ -145,7 +145,7 @@ public class ASTContainers {
     }
 
     private static Pair<ASTNode, ASTNode> sharedParentDeep(ASTNode one, ASTNode two) {
-        final List<ASTNode> tree = new ArrayList<ASTNode>();
+        final List<ASTNode> tree = new ArrayList<>();
         ASTNode oee = one;
         tree.add(oee);
         while (null != oee)
@@ -175,7 +175,7 @@ public class ASTContainers {
     }
 
     public static Set<String> loggers(ASTNode n) {
-        final Set<String> ret = new HashSet<String>();
+        final Set<String> ret = new HashSet<>();
         n.accept(new LoggerFieldFinder(ret));
         return ret;
     }

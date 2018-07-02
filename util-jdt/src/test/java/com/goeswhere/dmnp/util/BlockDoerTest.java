@@ -42,7 +42,7 @@ public class BlockDoerTest {
     @Test
     public void test() throws InterruptedException {
         for (int i = 0; i < REPETITIONS; ++i) {
-            final Set<String> ret = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+            final Set<String> ret = Collections.newSetFromMap(new ConcurrentHashMap<>());
             Lock l = new ReentrantReadWriteLock().writeLock();
             final BlockDoer d = BlockDoer.start(l);
             try {
@@ -62,7 +62,7 @@ public class BlockDoerTest {
     @Test
     public void testExecutor() throws InterruptedException {
         for (int i = 0; i < REPETITIONS; ++i) {
-            final Set<String> ret = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+            final Set<String> ret = Collections.newSetFromMap(new ConcurrentHashMap<>());
             Lock l = new ReentrantReadWriteLock().writeLock();
             final ExecutorService d = BlockDoerExecutorService.create(l);
             d.execute(new SaveString(ret, "here"));

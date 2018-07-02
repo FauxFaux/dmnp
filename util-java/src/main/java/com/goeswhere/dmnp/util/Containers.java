@@ -48,7 +48,7 @@ public class Containers {
     }
 
     public static <T> Set<T> newConcurrentHashSet() {
-        return Collections.newSetFromMap(new ConcurrentHashMap<T, Boolean>());
+        return Collections.newSetFromMap(new ConcurrentHashMap<>());
     }
 
     public static <K, V> Function<K, V> asFunction(final Map<K, V> m) {

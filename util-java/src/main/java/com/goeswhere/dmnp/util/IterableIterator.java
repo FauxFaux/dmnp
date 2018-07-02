@@ -11,7 +11,7 @@ public class IterableIterator<T> implements Iterable<T> {
     }
 
     public static <T> Iterable<T> once(Iterator<T> it) {
-        return new IterableIterator<T>(it);
+        return new IterableIterator<>(it);
     }
 
     @Override

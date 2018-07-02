@@ -60,10 +60,7 @@ public class Poison implements ClassFileTransformer {
 
             m.instructions.insert(generateLoggerCall(loggerName, cn.name, m.name + ": entering"));
 
-            final Iterator<AbstractInsnNode> j = ASMContainers.it(m.instructions).iterator();
-
-            while (j.hasNext()) {
-                final AbstractInsnNode in = j.next();
+            for (AbstractInsnNode in : ASMContainers.it(m.instructions)) {
                 final int op = in.getOpcode();
                 if ((op >= Opcodes.IRETURN && op <= Opcodes.RETURN) || op == Opcodes.ATHROW)
                     m.instructions.insert(in.getPrevious(),
@@ -86,8 +83,8 @@ public class Poison implements ClassFileTransformer {
     }
 
     private static String ensureLoggerName(final ClassNode cn) {
-        final List<String> loggers = new ArrayList<String>(1);
-        final Set<String> fields = new HashSet<String>(cn.fields.size());
+        final List<String> loggers = new ArrayList<>(1);
+        final Set<String> fields = new HashSet<>(cn.fields.size());
 
         cn.accept(new EmptyVisitor() {
             @Override

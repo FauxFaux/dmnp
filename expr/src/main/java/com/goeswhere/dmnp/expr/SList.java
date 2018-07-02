@@ -14,11 +14,11 @@ class SList<T> implements
     }
 
     static <V> SList<V> head(V v) {
-        return new SList<V>(null, v);
+        return new SList<>(null, v);
     }
 
     SList<T> plus(T u) {
-        return new SList<T>(this, u);
+        return new SList<>(this, u);
     }
 
     SList<T> plusAll(Iterable<T> l) {

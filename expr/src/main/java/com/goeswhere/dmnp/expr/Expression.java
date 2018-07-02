@@ -43,7 +43,7 @@ public class Expression {
 
     private static Iterable<SList<Pred>> toExpression(InsnList instructions) {
         return recurse(new InsnIter(instructions),
-                new ArrayDeque<Token>(),
+                new ArrayDeque<>(),
                 SList.<Pred>empty());
     }
 
@@ -159,13 +159,13 @@ public class Expression {
     }
 
     private static <T> Set<T> sortedSet(Iterable<T> iter) {
-        final Set<T> ret = new TreeSet<T>();
+        final Set<T> ret = new TreeSet<>();
         for (T t : iter)
             ret.add(t);
         return ret;
     }
 
     private static ArrayDeque<Token> copy(Deque<Token> stack) {
-        return new ArrayDeque<Token>(stack);
+        return new ArrayDeque<>(stack);
     }
 }

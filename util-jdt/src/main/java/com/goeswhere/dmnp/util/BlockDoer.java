@@ -33,7 +33,7 @@ public class BlockDoer extends Thread implements Closeable {
     }
 
     public BlockDoer(Lock wl) {
-        this(wl, new LinkedBlockingQueue<Runnable>());
+        this(wl, new LinkedBlockingQueue<>());
     }
 
     @Override

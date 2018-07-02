@@ -119,7 +119,7 @@ public class DocCrap {
     }
 
     private static Map<String, String> methodArgs(MethodDeclaration node) {
-        Map<String, String> args = new HashMap<String, String>();
+        Map<String, String> args = new HashMap<>();
         for (SingleVariableDeclaration a : ASTContainers.parameters(node))
             args.put(a.getName().getIdentifier(), stringize(a.getType()));
         return args;

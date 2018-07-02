@@ -44,7 +44,7 @@ public class ASMWrapper {
     }
 
     public static Map<String, ClassNode> compileToClassNodes(Map<String, String> sources) throws IOException, FailedException {
-        final List<JavaSourceFromString> l = new ArrayList<JavaSourceFromString>();
+        final List<JavaSourceFromString> l = new ArrayList<>();
         for (Entry<String, String> src : sources.entrySet())
             l.add(new JavaSourceFromString(src.getKey(), src.getValue()));
         return compileToClassNodes(l);
@@ -65,7 +65,7 @@ public class ASMWrapper {
             if (Boolean.TRUE.equals(task.call())) {
 
                 // Read in the files..
-                Map<String, ClassNode> ret = new HashMap<String, ClassNode>();
+                Map<String, ClassNode> ret = new HashMap<>();
                 readFiles(tmpdir, ret);
                 return ret;
             }
@@ -180,6 +180,6 @@ public class ASMWrapper {
     }
 
     // This acts as an IdentityHashMap as MethodNode has no equals/hashCode.
-    private final static Map<MethodNode, ClassNode> METHOD_TO_CLASS = new WeakHashMap<MethodNode, ClassNode>();
+    private final static Map<MethodNode, ClassNode> METHOD_TO_CLASS = new WeakHashMap<>();
 
 }

@@ -31,7 +31,7 @@ public class DumbParsingTest {
     }
 
     @Test
-    public void testPackageOf\u1571() throws IOException {
+    public void testPackageOfu1571() throws IOException {
         assertPackageOf("pon\u1571", "package pon\\u1571;\nclass A {\n\tint a;\n}\n");
     }
 

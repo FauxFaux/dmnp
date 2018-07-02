@@ -53,14 +53,8 @@ public class PrepLookup extends ResolvingFileFixer {
     }
 
     public static void main(final String[] args) throws InterruptedException {
-        main("functionPrefix", 1, args, new Creator() {
-            @Override
-            public Function<String, String> create(String[] cp,
-                                                   String[] sourcePath, String unitName, Lock compileLock) {
-                return new PrepLookup(cp, sourcePath, unitName, compileLock,
-                        parseFunction(args[0]));
-            }
-        });
+        main("functionPrefix", 1, args, (cp, sourcePath, unitName, compileLock) -> new PrepLookup(cp, sourcePath, unitName, compileLock,
+                parseFunction(args[0])));
 
         System.out.println("edited=" + edited +
                 ", noninfix=" + noninfix +

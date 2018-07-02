@@ -31,12 +31,9 @@ public class UsefulExceptionChecker {
         @Override
         public void run() {
             try {
-                processDir(new File(folder), new ResultAccumulator() {
-                    @Override
-                    public void accumulate(String r) {
-                        output.add(r);
-                        System.out.println(r + " in " + folder);
-                    }
+                processDir(new File(folder), r -> {
+                    output.add(r);
+                    System.out.println(r + " in " + folder);
                 });
             } catch (IOException e) {
                 e.printStackTrace(System.err);
@@ -98,14 +95,9 @@ public class UsefulExceptionChecker {
 
     private static void processString(final String filename, final String contents, final ResultAccumulator ra) {
         final CompilationUnit cu = ASTWrapper.compile(contents);
-        final Reporter rep = new Reporter() {
-            @Override
-            public void report(CatchClause cc) {
-                ra.accumulate(cc.getException()
-                        + " unused at (" + filename + ":" + cu.getLineNumber(cc.getStartPosition())
-                        + ") in " + ASTWrapper.methodName(cc));
-            }
-        };
+        final Reporter rep = cc -> ra.accumulate(cc.getException()
+                + " unused at (" + filename + ":" + cu.getLineNumber(cc.getStartPosition())
+                + ") in " + ASTWrapper.methodName(cc));
         VisitCatchClauses.accept(cu, rep);
     }
 }

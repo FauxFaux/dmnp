@@ -20,13 +20,7 @@ class InlineRet extends ResolvingFileFixer {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        main(args, new Creator() {
-            @Override
-            public Function<String, String> create(String[] cp,
-                                                   String[] sourcePath, String unitName, Lock l) {
-                return new InlineRet(cp, sourcePath, unitName, l);
-            }
-        });
+        main(args, (cp, sourcePath, unitName, l) -> new InlineRet(cp, sourcePath, unitName, l));
     }
 
     @Override

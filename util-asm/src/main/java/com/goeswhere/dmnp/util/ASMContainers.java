@@ -19,12 +19,7 @@ public class ASMContainers {
 
     @SuppressWarnings("unchecked")
     public static Iterable<AbstractInsnNode> it(final InsnList insns) {
-        return new Iterable<AbstractInsnNode>() {
-            @Override
-            public Iterator<AbstractInsnNode> iterator() {
-                return insns.iterator();
-            }
-        };
+        return () -> insns.iterator();
     }
 
     @SuppressWarnings("unchecked")
@@ -42,18 +37,8 @@ public class ASMContainers {
         return cn.interfaces;
     }
 
-    public static final Function<FieldNode, String> NAME_FIELDNODE = new Function<FieldNode, String>() {
-        @Override
-        public String apply(FieldNode from) {
-            return from.name;
-        }
-    };
-    public static final Function<MethodNode, String> NAME_METHODNODE = new Function<MethodNode, String>() {
-        @Override
-        public String apply(MethodNode from) {
-            return from.name;
-        }
-    };
+    public static final Function<FieldNode, String> NAME_FIELDNODE = from -> from.name;
+    public static final Function<MethodNode, String> NAME_METHODNODE = from -> from.name;
 
     public static List<String> fieldNames(final ClassNode cn) {
         return Lists.transform(fields(cn), NAME_FIELDNODE);

@@ -26,16 +26,13 @@ public abstract class SimpleFileFixer extends FileFixer {
     }
 
     public static void main(String[] args, final Class<? extends Function<String, String>> c) throws InterruptedException {
-        main(null, 0, args, new Creator() {
-            @Override
-            public Function<String, String> create() {
-                try {
-                    return c.newInstance();
-                } catch (InstantiationException e) {
-                    throw new RuntimeException(e);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
+        main(null, 0, args, () -> {
+            try {
+                return c.newInstance();
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
             }
         });
     }
@@ -68,25 +65,22 @@ public abstract class SimpleFileFixer extends FileFixer {
         final ExecutorService es = service();
 
         for (final File file : fileOrFileList(f)) {
-            es.submit(new Runnable() {
-                @Override
-                public void run() {
-                    proc(file);
-                    try {
-                        final String thispath = file.getAbsolutePath();
-                        final String read = consumeFile(thispath);
-                        FILE_NAME.set(path);
+            es.submit(() -> {
+                proc(file);
+                try {
+                    final String thispath = file.getAbsolutePath();
+                    final String read = consumeFile(thispath);
+                    FILE_NAME.set(path);
 
-                        final String result = creator.create().apply(read);
+                    final String result = creator.create().apply(read);
 
-                        if (!result.equals(read))
-                            writeFile(new File(thispath), result);
+                    if (!result.equals(read))
+                        writeFile(new File(thispath), result);
 
-                    } catch (Exception e) {
-                        err(file, e);
-                    } finally {
-                        term(file);
-                    }
+                } catch (Exception e) {
+                    err(file, e);
+                } finally {
+                    term(file);
                 }
             });
         }

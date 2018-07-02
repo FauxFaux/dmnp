@@ -111,12 +111,7 @@ public class Trace4jAst extends SimpleFileFixer {
             return;
         }
 
-        loop(args[1], new Creator() {
-            @Override
-            public Function<String, String> create() {
-                return new Trace4jAst(b, BuiltinNameGenerators.GLOBAL_SEQUENTIAL);
-            }
-        });
+        loop(args[1], () -> new Trace4jAst(b, BuiltinNameGenerators.GLOBAL_SEQUENTIAL));
     }
 
     private final Rewriter rewriter;

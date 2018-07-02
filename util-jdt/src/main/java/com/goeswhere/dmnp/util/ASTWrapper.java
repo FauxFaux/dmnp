@@ -36,12 +36,7 @@ public class ASTWrapper {
                     "java.util.StringBuilder",
                     "java.util.StringBuffer");
 
-    private static final Function<IBinding, String> NAME_BINDING = new Function<IBinding, String>() {
-        @Override
-        public String apply(IBinding from) {
-            return from.getName();
-        }
-    };
+    private static final Function<IBinding, String> NAME_BINDING = from -> from.getName();
 
     /**
      * Return the Java 5 CU for the string.

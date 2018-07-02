@@ -26,13 +26,7 @@ public class ListCalls extends ResolvingFileFixer {
     public static void main(final String[] args) throws InterruptedException {
         final Set<String> results = Sets.newSetFromMap(Maps.<String, Boolean>newConcurrentMap());
 
-        main(args, new Creator() {
-            @Override
-            public Function<String, String> create(String[] cp,
-                                                   String[] sourcePath, String unitName, Lock compileLock) {
-                return new ListCalls(cp, sourcePath, unitName, compileLock, results);
-            }
-        });
+        main(args, (cp, sourcePath, unitName, compileLock) -> new ListCalls(cp, sourcePath, unitName, compileLock, results));
 
         for (String s : results)
             System.out.println(s);

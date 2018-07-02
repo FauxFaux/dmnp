@@ -22,12 +22,7 @@ public class Closer implements Closeable {
     private List<Closeable> clo = Lists.newArrayList();
     private final ExceptionHandler eh;
 
-    private static final ExceptionHandler STDERR_EXCEPTION_HANDLER = new ExceptionHandler() {
-        @Override
-        public void handle(Exception e) {
-            e.printStackTrace(System.err);
-        }
-    };
+    private static final ExceptionHandler STDERR_EXCEPTION_HANDLER = e -> e.printStackTrace(System.err);
 
     public <T extends Closeable> T add(T c) {
         clo.add(c);
@@ -81,27 +76,21 @@ public class Closer implements Closeable {
     }
 
     public static Closeable wrap(final Connection c) {
-        return new Closeable() {
-            @Override
-            public void close() {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-                    throw new ClosingFailedException(e);
-                }
+        return () -> {
+            try {
+                c.close();
+            } catch (SQLException e) {
+                throw new ClosingFailedException(e);
             }
         };
     }
 
     public static Closeable wrap(final Statement c) {
-        return new Closeable() {
-            @Override
-            public void close() {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-                    throw new ClosingFailedException(e);
-                }
+        return () -> {
+            try {
+                c.close();
+            } catch (SQLException e) {
+                throw new ClosingFailedException(e);
             }
         };
     }

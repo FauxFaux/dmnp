@@ -52,12 +52,7 @@ public class Containers {
     }
 
     public static <K, V> Function<K, V> asFunction(final Map<K, V> m) {
-        return new Function<K, V>() {
-            @Override
-            public V apply(K from) {
-                return m.get(from);
-            }
-        };
+        return from -> m.get(from);
     }
 
     public static boolean allNull(Object... os) {

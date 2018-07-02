@@ -21,12 +21,7 @@ public class FileUtils {
 
     private final static Charset DEFAULT_ENCODING = Charsets.UTF_8;
 
-    public static final Function<File, String> ABSOLUTE_PATH = new Function<File, String>() {
-        @Override
-        public String apply(File f) {
-            return f.getAbsolutePath();
-        }
-    };
+    public static final Function<File, String> ABSOLUTE_PATH = f -> f.getAbsolutePath();
 
     public static class RuntimeIOException extends RuntimeException {
         public RuntimeIOException(IOException e) {
@@ -107,37 +102,22 @@ public class FileUtils {
     public static Iterable<File> filesIn(final File root, final String ext) {
         final String dottedex = "." + ext;
 
-        return filesIn(root, new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.getName().endsWith(dottedex);
-            }
-        });
+        return filesIn(root, pathname -> pathname.getName().endsWith(dottedex));
     }
 
     /**
      * Silently ignores un-listable directories.
      */
     public static Iterable<File> filesIn(final File root, final FileFilter ffun) {
-        final FileFilter ff = new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return !pathname.isHidden()
-                        && (pathname.isDirectory() || ffun.accept(pathname));
-            }
-        };
+        final FileFilter ff = pathname -> !pathname.isHidden()
+                && (pathname.isDirectory() || ffun.accept(pathname));
 
         final File[] fl = root.listFiles(ff);
         if (null == fl)
             return Collections.emptyList();
 
         return concatMap(Arrays.asList(fl),
-                new Function<File, Iterable<File>>() {
-                    @Override
-                    public Iterable<File> apply(File from) {
-                        return from.isDirectory() ? filesIn(from, ff) : Arrays.asList(from);
-                    }
-                });
+                from -> from.isDirectory() ? filesIn(from, ff) : Arrays.asList(from));
     }
 
     public static File createTempDir(final String name) throws IOException, FailedException {
@@ -182,14 +162,11 @@ public class FileUtils {
      */
     public static String[] sysSplitWithWildcards(final String arg, final String starType) {
         return Iterables.toArray(FJava.concatMap(Arrays.asList(sysSplit(arg)),
-                new Function<String, Iterable<String>>() {
-                    @Override
-                    public Iterable<String> apply(String from) {
-                        if (!from.endsWith("*"))
-                            return ImmutableList.of(from);
-                        final String withoutStar = from.substring(0, from.length() - 1);
-                        return Iterables.transform(FileUtils.filesIn(withoutStar, starType), FileUtils.ABSOLUTE_PATH);
-                    }
+                from -> {
+                    if (!from.endsWith("*"))
+                        return ImmutableList.of(from);
+                    final String withoutStar = from.substring(0, from.length() - 1);
+                    return Iterables.transform(FileUtils.filesIn(withoutStar, starType), FileUtils.ABSOLUTE_PATH);
                 }), String.class);
     }
 

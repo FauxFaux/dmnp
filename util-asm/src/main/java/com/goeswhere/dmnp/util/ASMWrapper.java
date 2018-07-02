@@ -77,22 +77,12 @@ public class ASMWrapper {
 
     private static void readFiles(final File dir, Map<String, ClassNode> ret) throws FileNotFoundException,
             IOException {
-        for (File fi : dir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File fdir, String fname) {
-                return fname.endsWith(".class");
-            }
-        })) {
+        for (File fi : dir.listFiles((fdir, fname) -> fname.endsWith(".class"))) {
             final ClassNode cn = load(fi);
             ret.put(cn.name, cn);
         }
 
-        for (File fi : dir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.isDirectory();
-            }
-        }))
+        for (File fi : dir.listFiles(pathname -> pathname.isDirectory()))
             readFiles(fi, ret);
     }
 
@@ -164,12 +154,7 @@ public class ASMWrapper {
     public static MethodNode getMethod(final Object o, final String name) throws IOException {
         final ClassNode cn = ASMWrapper.refToCn(o);
         final MethodNode m = only(filter(ASMContainers.methods(cn),
-                new Predicate<MethodNode>() {
-                    @Override
-                    public boolean apply(MethodNode method) {
-                        return name.equals(method.name);
-                    }
-                }
+                method -> name.equals(method.name)
         ));
         METHOD_TO_CLASS.put(m, cn);
         return m;

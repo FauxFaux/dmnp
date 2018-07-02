@@ -34,12 +34,7 @@ public class ASTWrapperTest {
         final CompilationUnit cu = ASTWrapper.compile(c);
         assertEquals(Arrays.asList("C"),
                 Lists.transform(ASTContainers.types(cu),
-                        new Function<AbstractTypeDeclaration, String>() {
-                            @Override
-                            public String apply(AbstractTypeDeclaration from) {
-                                return from.getName().getIdentifier();
-                            }
-                        }));
+                        from -> from.getName().getIdentifier()));
     }
 
 

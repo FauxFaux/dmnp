@@ -16,12 +16,7 @@ import static com.goeswhere.dmnp.util.ASTWrapper.rewrite;
 
 public class TraceDestroy extends SimpleFileFixer {
     public static void main(String[] args) throws InterruptedException {
-        main(args, new Creator() {
-            @Override
-            public Function<String, String> create() {
-                return new TraceDestroy();
-            }
-        });
+        main(args, () -> new TraceDestroy());
     }
 
     private static final Set<String> req = ImmutableSet.of("debug", "trace");

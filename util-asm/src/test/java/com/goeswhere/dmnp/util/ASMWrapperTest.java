@@ -24,12 +24,7 @@ public class ASMWrapperTest {
         assertEquals("A", node.name);
         assertEquals(Arrays.asList("<init>", "foo"),
                 Lists.transform(ASMContainers.methods(node),
-                        new Function<MethodNode, String>() {
-                            @Override
-                            public String apply(MethodNode from) {
-                                return from.name;
-                            }
-                        }));
+                        from -> from.name));
     }
 
     @Test

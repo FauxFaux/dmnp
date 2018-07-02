@@ -20,11 +20,8 @@ public class BlockDoer extends Thread implements Closeable {
         // nothing at all
     }
 
-    private final static Runnable shutdown = new Runnable() {
-        @Override
-        public void run() {
-            throw new Shutdown();
-        }
+    private final static Runnable shutdown = () -> {
+        throw new Shutdown();
     };
 
     public BlockDoer(Lock wl, BlockingQueue<Runnable> queue) {

@@ -31,12 +31,7 @@ public class SchemaReader {
             throw new RuntimeException();
         }
 
-        go(FileUtils.consumeFile(args[0]), new Outputter() {
-            @Override
-            public void output(String s) {
-                System.out.println(s);
-            }
-        });
+        go(FileUtils.consumeFile(args[0]), s -> System.out.println(s));
     }
 
     static void go(final String fileContents, final Outputter out) {

@@ -153,12 +153,7 @@ public class Trace4jAstTest {
     }
 
     private void assertWashes(Rewriter r, String expected, String actual) {
-        assertEquals(wash(expected), wash(new Trace4jAst(r, new NameGenerator() {
-            @Override
-            public String apply(String prefix) {
-                return prefix;
-            }
-        }).apply(actual)));
+        assertEquals(wash(expected), wash(new Trace4jAst(r, prefix -> prefix).apply(actual)));
     }
 
     private String wash(String apply) {

@@ -32,14 +32,11 @@ public class FJavaTest {
     @Test
     public void testNRepeats() {
         assertEquals(Arrays.asList(1, 4, 4, 4, 4, 2, 2), Lists.newArrayList(
-                FJava.concatMap(Arrays.asList(1, 0, 4, 0, 2), new Function<Integer, Iterable<Integer>>() {
-                    @Override
-                    public Iterable<Integer> apply(Integer from) {
-                        final List<Integer> ret = Lists.newArrayListWithCapacity(from);
-                        for (int i = 0; i < from; ++i)
-                            ret.add(from);
-                        return ret;
-                    }
+                FJava.concatMap(Arrays.asList(1, 0, 4, 0, 2), from -> {
+                    final List<Integer> ret = Lists.newArrayListWithCapacity(from);
+                    for (int i = 0; i < from; ++i)
+                        ret.add(from);
+                    return ret;
                 })));
     }
 
@@ -47,19 +44,16 @@ public class FJavaTest {
     @Test
     public void testReducer() {
         assertEquals(Arrays.asList('x', 'y', 'z', 'a', 'b', 'c'),
-                FJava.reducer('x', new Function<Character, Iterable<Character>>() {
-                    @Override
-                    public Iterable<Character> apply(Character from) {
-                        switch (from) {
-                            case 'x':
-                                return Arrays.asList('y', 'z');
-                            case 'z':
-                                return Arrays.asList('a');
-                            case 'a':
-                                return Arrays.asList('b', 'c');
-                            default:
-                                return Collections.emptyList();
-                        }
+                FJava.reducer('x', from -> {
+                    switch (from) {
+                        case 'x':
+                            return Arrays.asList('y', 'z');
+                        case 'z':
+                            return Arrays.asList('a');
+                        case 'a':
+                            return Arrays.asList('b', 'c');
+                        default:
+                            return Collections.emptyList();
                     }
                 }));
     }

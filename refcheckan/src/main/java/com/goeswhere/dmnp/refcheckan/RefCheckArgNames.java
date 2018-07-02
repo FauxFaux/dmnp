@@ -50,44 +50,41 @@ public class RefCheckArgNames {
         final ExecutorService ex = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
         for (String srcPath : sourcePath)
             for (final File file : javaFilesIn(srcPath))
-                ex.submit(new Callable<Void>() {
-                    @Override
-                    public Void call() throws IOException {
-                        final CompilationUnit cu = ASTWrapper.compile(consumeFile(file));
-                        cu.accept(new ASTVisitor() {
-                            @Override
-                            public boolean visit(MethodInvocation node) {
-                                calledMethods.add(flatten(node));
-                                return true;
-                            }
+                ex.submit((Callable<Void>) () -> {
+                    final CompilationUnit cu = ASTWrapper.compile(consumeFile(file));
+                    cu.accept(new ASTVisitor() {
+                        @Override
+                        public boolean visit(MethodInvocation node) {
+                            calledMethods.add(flatten(node));
+                            return true;
+                        }
 
-                            @Override
-                            public boolean visit(ClassInstanceCreation node) {
-                                calledMethods.add(flatten(node));
-                                return true;
-                            }
+                        @Override
+                        public boolean visit(ClassInstanceCreation node) {
+                            calledMethods.add(flatten(node));
+                            return true;
+                        }
 
-                            @Override
-                            public boolean visit(ConstructorInvocation node) {
-                                calledMethods.add(flatten(node));
-                                return true;
-                            }
+                        @Override
+                        public boolean visit(ConstructorInvocation node) {
+                            calledMethods.add(flatten(node));
+                            return true;
+                        }
 
-                            @Override
-                            public boolean visit(SuperConstructorInvocation node) {
-                                calledMethods.add(flatten(node));
-                                return true;
-                            }
+                        @Override
+                        public boolean visit(SuperConstructorInvocation node) {
+                            calledMethods.add(flatten(node));
+                            return true;
+                        }
 
-                            @Override
-                            public boolean visit(MethodDeclaration node) {
-                                methodLocations.put(flatten(node), node);
-                                location.put(node, file.getName() + ":" + cu.getLineNumber(node.getName().getStartPosition()));
-                                return true;
-                            }
-                        });
-                        return null;
-                    }
+                        @Override
+                        public boolean visit(MethodDeclaration node) {
+                            methodLocations.put(flatten(node), node);
+                            location.put(node, file.getName() + ":" + cu.getLineNumber(node.getName().getStartPosition()));
+                            return true;
+                        }
+                    });
+                    return null;
                 });
 
         ex.shutdown();
@@ -104,12 +101,7 @@ public class RefCheckArgNames {
             dodgy.add(d);
         }
 
-        Collections.sort(dodgy, new Comparator<MethodDeclaration>() {
-            @Override
-            public int compare(MethodDeclaration o1, MethodDeclaration o2) {
-                return size(o1) - size(o2);
-            }
-        });
+        Collections.sort(dodgy, (o1, o2) -> size(o1) - size(o2));
 
         SetMultimap<String, MethodDeclaration> perClass = HashMultimap.create();
         for (MethodDeclaration d : dodgy) {
@@ -118,13 +110,7 @@ public class RefCheckArgNames {
                 perClass.put(cla, d);
         }
         List<Entry<String, Collection<MethodDeclaration>>> l = Lists.newArrayList(perClass.asMap().entrySet());
-        Collections.sort(l, new Comparator<Entry<String, Collection<MethodDeclaration>>>() {
-            @Override
-            public int compare(Entry<String, Collection<MethodDeclaration>> o1,
-                               Entry<String, Collection<MethodDeclaration>> o2) {
-                return size(o1.getValue()) - size(o2.getValue());
-            }
-        });
+        Collections.sort(l, (o1, o2) -> size(o1.getValue()) - size(o2.getValue()));
 
         int q = 0;
         for (Entry<String, Collection<MethodDeclaration>> a : l) {
@@ -138,12 +124,7 @@ public class RefCheckArgNames {
 
     private static Collection<MethodDeclaration> sorted(final Collection<MethodDeclaration> value) {
         List<MethodDeclaration> v = Lists.newArrayList(value);
-        Collections.sort(v, new Comparator<MethodDeclaration>() {
-            @Override
-            public int compare(MethodDeclaration o1, MethodDeclaration o2) {
-                return o1.getStartPosition() - o2.getStartPosition();
-            }
-        });
+        Collections.sort(v, (o1, o2) -> o1.getStartPosition() - o2.getStartPosition());
         return v;
     }
 

@@ -27,15 +27,12 @@ public class Expression {
     static Iterable<SList<Pred>> toExpression(Predicate<?> x) throws IOException {
         final ClassNode cn = ASMWrapper.refToCn(x);
         final Iterable<MethodNode> candidates =
-                filter(ASMContainers.methods(cn), new Predicate<MethodNode>() {
-                    @Override
-                    public boolean apply(MethodNode method) {
-                        // this is really weak, but thinking is hard
-                        // synthetic will drop the un-generisized method.
-                        return !Containers.hasBit(method.access, Opcodes.ACC_SYNTHETIC) &&
-                                "apply".equals(method.name) &&
-                                method.desc.endsWith(")Z");
-                    }
+                filter(ASMContainers.methods(cn), method -> {
+                    // this is really weak, but thinking is hard
+                    // synthetic will drop the un-generisized method.
+                    return !Containers.hasBit(method.access, Opcodes.ACC_SYNTHETIC) &&
+                            "apply".equals(method.name) &&
+                            method.desc.endsWith(")Z");
                 });
 
         return toExpression(only(candidates).instructions);
@@ -116,46 +113,20 @@ public class Expression {
 
     private static String format(Iterable<SList<Pred>> r) {
         return "(" + intersperse(map(map(sortedSet(filter(r,
-                new Predicate<SList<Pred>>() {
-                    @Override
-                    public boolean apply(SList<Pred> l) {
-                        for (Pred p : l)
-                            if (Pred.FALSE == p)
-                                return false;
-                        return true;
-                    }
-                })), new Function<SList<Pred>, Iterable<Pred>>() {
-                    @Override
-                    public Iterable<Pred> apply(final SList<Pred> t) {
-                        return filter(t, new Predicate<Pred>() {
-                            @Override
-                            public boolean apply(Pred p) {
-                                for (Pred q : t)
-                                    if (p instanceof PredCmp &&
-                                            q instanceof PredCmp &&
-                                            ((PredCmp) q).strongerThan((PredCmp) p))
-                                        return false;
-                                return true;
-                            }
-                        });
-                    }
-                }),
-                new Function<Iterable<Pred>, String>() {
-                    @Override
-                    public String apply(Iterable<Pred> t) {
-                        return intersperse(map(sortedSet(filter(t, new Predicate<Pred>() {
-                            @Override
-                            public boolean apply(Pred q) {
-                                return Pred.TRUE != q;
-                            }
-                        })), new Function<Pred, String>() {
-                            @Override
-                            public String apply(Pred u) {
-                                return u.toString();
-                            }
-                        }), " AND ");
-                    }
-                }), ") OR\n(") + ")";
+                l -> {
+                    for (Pred p : l)
+                        if (Pred.FALSE == p)
+                            return false;
+                    return true;
+                })), t -> filter(t, p -> {
+                    for (Pred q : t)
+                        if (p instanceof PredCmp &&
+                                q instanceof PredCmp &&
+                                ((PredCmp) q).strongerThan((PredCmp) p))
+                            return false;
+                    return true;
+                })),
+                t -> intersperse(map(sortedSet(filter(t, q -> Pred.TRUE != q)), u -> u.toString()), " AND ")), ") OR\n(") + ")";
     }
 
     private static <T> Set<T> sortedSet(Iterable<T> iter) {

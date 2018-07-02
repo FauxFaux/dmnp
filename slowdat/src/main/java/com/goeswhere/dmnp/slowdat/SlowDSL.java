@@ -21,22 +21,11 @@ import static com.goeswhere.dmnp.util.ASTWrapper.rewrite;
 public class SlowDSL extends ResolvingFileFixer {
 
     public static void main(String[] args) throws InterruptedException {
-        main(args, new Creator() {
-            @Override
-            public Function<String, String> create(String[] cp,
-                                                   String[] sourcePath, String name, Lock l) {
-                return new SlowDSL(cp, sourcePath, name, l);
-            }
-        });
+        main(args, (cp, sourcePath, name, l) -> new SlowDSL(cp, sourcePath, name, l));
     }
 
     private static final Function<ITypeBinding, String> TYPEBINDING_QUALIFIED_NAME =
-            new Function<ITypeBinding, String>() {
-                @Override
-                public String apply(ITypeBinding from) {
-                    return from.getQualifiedName();
-                }
-            };
+            from -> from.getQualifiedName();
 
     @VisibleForTesting
     SlowDSL(String[] classpath, String[] sourcepath, String unitName, Lock l) {

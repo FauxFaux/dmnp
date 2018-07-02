@@ -124,12 +124,7 @@ public class UETest {
     private static Set<String> goClass(final String contents) {
         final Set<String> res = new HashSet<>();
         final CompilationUnit cu = ASTWrapper.compile(contents);
-        final Reporter rep = new Reporter() {
-            @Override
-            public void report(CatchClause cc) {
-                res.add(cc.getException().getName().getIdentifier());
-            }
-        };
+        final Reporter rep = cc -> res.add(cc.getException().getName().getIdentifier());
         VisitCatchClauses.accept(cu, rep);
         return res;
     }

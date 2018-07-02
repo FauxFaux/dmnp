@@ -49,12 +49,7 @@ public class FileUtilsTest {
         return ABSOLUTE_PATH.apply(new File(p));
     }
 
-    final FileFilter EVERYTHING_FILEFILTER = new FileFilter() {
-        @Override
-        public boolean accept(File pathname) {
-            return true;
-        }
-    };
+    final FileFilter EVERYTHING_FILEFILTER = pathname -> true;
 
     @Test
     public void testFilesIn() {

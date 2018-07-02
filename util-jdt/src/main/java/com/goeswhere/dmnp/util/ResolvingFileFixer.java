@@ -91,38 +91,32 @@ public abstract class ResolvingFileFixer extends FileFixer {
 
         try {
             for (final File file : fileOrFileList(f)) {
-                es.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        proc(file);
+                es.submit(() -> {
+                    proc(file);
+                    try {
+                        final String thispath = file.getAbsolutePath();
+                        FILE_NAME.set(thispath);
+                        final String read;
+
+                        final Lock rl = r.readLock();
+                        rl.lock();
                         try {
-                            final String thispath = file.getAbsolutePath();
-                            FILE_NAME.set(thispath);
-                            final String read;
-
-                            final Lock rl = r.readLock();
-                            rl.lock();
-                            try {
-                                read = consumeFile(thispath);
-                            } finally {
-                                rl.unlock();
-                            }
-
-                            final String result = creator.create(cp, sourcePath, unitName(thispath), rl).apply(read);
-
-                            if (!result.equals(read))
-                                writer.offer(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        msg(file, "Writing");
-                                        writeFile(new File(thispath), result);
-                                    }
-                                });
-                        } catch (Exception e) {
-                            err(file, e);
+                            read = consumeFile(thispath);
                         } finally {
-                            term(file);
+                            rl.unlock();
                         }
+
+                        final String result = creator.create(cp, sourcePath, unitName(thispath), rl).apply(read);
+
+                        if (!result.equals(read))
+                            writer.offer(() -> {
+                                msg(file, "Writing");
+                                writeFile(new File(thispath), result);
+                            });
+                    } catch (Exception e) {
+                        err(file, e);
+                    } finally {
+                        term(file);
                     }
                 });
             }

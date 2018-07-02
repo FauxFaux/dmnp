@@ -101,7 +101,7 @@ public class RefCheckArgNames {
             dodgy.add(d);
         }
 
-        Collections.sort(dodgy, (o1, o2) -> size(o1) - size(o2));
+        dodgy.sort((o1, o2) -> size(o1) - size(o2));
 
         SetMultimap<String, MethodDeclaration> perClass = HashMultimap.create();
         for (MethodDeclaration d : dodgy) {
@@ -110,7 +110,7 @@ public class RefCheckArgNames {
                 perClass.put(cla, d);
         }
         List<Entry<String, Collection<MethodDeclaration>>> l = Lists.newArrayList(perClass.asMap().entrySet());
-        Collections.sort(l, (o1, o2) -> size(o1.getValue()) - size(o2.getValue()));
+        l.sort((o1, o2) -> size(o1.getValue()) - size(o2.getValue()));
 
         int q = 0;
         for (Entry<String, Collection<MethodDeclaration>> a : l) {
@@ -124,7 +124,7 @@ public class RefCheckArgNames {
 
     private static Collection<MethodDeclaration> sorted(final Collection<MethodDeclaration> value) {
         List<MethodDeclaration> v = Lists.newArrayList(value);
-        Collections.sort(v, (o1, o2) -> o1.getStartPosition() - o2.getStartPosition());
+        v.sort((o1, o2) -> o1.getStartPosition() - o2.getStartPosition());
         return v;
     }
 

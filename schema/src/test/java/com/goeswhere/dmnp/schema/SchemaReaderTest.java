@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -45,6 +46,6 @@ public class SchemaReaderTest {
                 " }" +
                 "}", out);
 
-        assertEquals(out.res, Arrays.asList("dbupdateversion3_0=2"));
+        assertEquals(out.res, Collections.singletonList("dbupdateversion3_0=2"));
     }
 }

@@ -17,15 +17,15 @@ public class FJavaTest {
 
     @Test
     public void testCons() {
-        assertEquals(asList("5"), Lists.newArrayList(cons("5", asList())));
-        assertEquals(asList("5", "7"), Lists.newArrayList(cons("5", asList("7"))));
+        assertEquals(Collections.singletonList("5"), Lists.newArrayList(cons("5", Collections.emptyList())));
+        assertEquals(asList("5", "7"), Lists.newArrayList(cons("5", Collections.singletonList("7"))));
         assertEquals(Arrays.asList("5", "6", "7"), Lists.newArrayList(cons("5", asList("6", "7"))));
-        assertEquals(Arrays.asList("5", "7", "6"), Lists.newArrayList(cons("5", cons("7", cons("6", asList())))));
+        assertEquals(Arrays.asList("5", "7", "6"), Lists.newArrayList(cons("5", cons("7", cons("6", Collections.emptyList())))));
     }
 
     @Test
     public void testIntersperse() {
-        assertEquals("a", intersperse(Arrays.asList("a"), ","));
+        assertEquals("a", intersperse(Collections.singletonList("a"), ","));
         assertEquals("a,b,c", intersperse(Arrays.asList("a", "b", "c"), ","));
     }
 

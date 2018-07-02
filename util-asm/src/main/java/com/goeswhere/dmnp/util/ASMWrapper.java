@@ -40,7 +40,7 @@ public class ASMWrapper {
      * javax.Compiler name.java containing the src and return all the ClassNodes output
      */
     public static Map<String, ClassNode> compileToClassNodes(String name, String src) throws IOException, FailedException {
-        return compileToClassNodes(Arrays.asList(new JavaSourceFromString(name, src)));
+        return compileToClassNodes(Collections.singletonList(new JavaSourceFromString(name, src)));
     }
 
     public static Map<String, ClassNode> compileToClassNodes(Map<String, String> sources) throws IOException, FailedException {

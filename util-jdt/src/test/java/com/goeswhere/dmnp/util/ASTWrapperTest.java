@@ -7,6 +7,8 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
@@ -32,9 +34,8 @@ public class ASTWrapperTest {
 
     private static void assertTopLevelTypeCalledC(final String c) {
         final CompilationUnit cu = ASTWrapper.compile(c);
-        assertEquals(Arrays.asList("C"),
-                Lists.transform(ASTContainers.types(cu),
-                        from -> from.getName().getIdentifier()));
+        assertEquals(Collections.singletonList("C"),
+                ASTContainers.types(cu).stream().map(from -> from.getName().getIdentifier()).collect(Collectors.toList()));
     }
 
 

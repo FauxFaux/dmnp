@@ -5,6 +5,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -40,7 +41,7 @@ abstract class FileFixer implements Function<String, String> {
     protected static boolean quiet;
 
     protected static Iterable<File> fileOrFileList(final File f) {
-        return f.isDirectory() ? FileUtils.javaFilesIn(f) : Arrays.asList(f);
+        return f.isDirectory() ? FileUtils.javaFilesIn(f) : Collections.singletonList(f);
     }
 
     protected synchronized static ExecutorService service() {

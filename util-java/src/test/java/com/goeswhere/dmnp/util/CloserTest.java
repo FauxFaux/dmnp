@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.io.Closeable;
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -46,7 +47,7 @@ public class CloserTest {
         } finally {
             c.close();
         }
-        assertEquals(Arrays.asList(1), res);
+        assertEquals(Collections.singletonList(1), res);
     }
 
     @Test

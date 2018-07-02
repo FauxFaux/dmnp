@@ -8,6 +8,7 @@ import org.objectweb.asm.tree.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.goeswhere.dmnp.util.Containers.hasBit;
 
@@ -41,7 +42,7 @@ public class ASMContainers {
     public static final Function<MethodNode, String> NAME_METHODNODE = from -> from.name;
 
     public static List<String> fieldNames(final ClassNode cn) {
-        return Lists.transform(fields(cn), NAME_FIELDNODE);
+        return fields(cn).stream().map(NAME_FIELDNODE::apply).collect(Collectors.toList());
     }
 
     public static Map<String, MethodNode> methodMap(final ClassNode cn) {

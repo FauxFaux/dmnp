@@ -84,7 +84,7 @@ public class DumClosed {
         final List<Problem> prrs = Lists.newArrayList(
                 new DumClosed(args[0], args[1]).execute(args[2]));
 
-        Collections.sort(prrs, (o1, o2) -> o1.badness.compareTo(o2.badness));
+        prrs.sort((o1, o2) -> o1.badness.compareTo(o2.badness));
 
         for (Problem p : prrs)
             System.out.println(p.badness + " bad: " + p);

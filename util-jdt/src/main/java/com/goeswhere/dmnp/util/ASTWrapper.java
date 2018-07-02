@@ -46,7 +46,7 @@ public class ASTWrapper {
     }
 
     private static ASTParser getParser(String c) {
-        final ASTParser parser = ASTParser.newParser(AST.JLS3);
+        final ASTParser parser = ASTParser.newParser(AST.JLS10);
         parser.setSource(c.toCharArray());
 
         final Map<String, String> ops =

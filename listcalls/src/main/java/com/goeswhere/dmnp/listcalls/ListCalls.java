@@ -3,13 +3,12 @@ package com.goeswhere.dmnp.listcalls;
 import com.goeswhere.dmnp.util.ASTAllVisitor;
 import com.goeswhere.dmnp.util.ASTWrapper;
 import com.goeswhere.dmnp.util.ResolvingFileFixer;
-import com.google.common.base.Function;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
@@ -24,7 +23,7 @@ public class ListCalls extends ResolvingFileFixer {
     }
 
     public static void main(final String[] args) throws InterruptedException {
-        final Set<String> results = Sets.newSetFromMap(Maps.<String, Boolean>newConcurrentMap());
+        final Set<String> results = Collections.newSetFromMap(Maps.<String, Boolean>newConcurrentMap());
 
         main(args, (cp, sourcePath, unitName, compileLock) -> new ListCalls(cp, sourcePath, unitName, compileLock, results));
 

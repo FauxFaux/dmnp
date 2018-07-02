@@ -288,12 +288,7 @@ public class ASTWrapper {
             final InfixExpression inf = (InfixExpression) e;
             return doesNothingUseful(inf.getLeftOperand())
                     && doesNothingUseful(inf.getRightOperand())
-                    && Iterables.isEmpty(Iterables.filter(extendedOperands(inf), new Predicate<Expression>() {
-                @Override
-                public boolean apply(Expression input) {
-                    return !doesNothingUseful(input);
-                }
-            }));
+                    && Iterables.isEmpty(Iterables.filter(extendedOperands(inf), input -> !doesNothingUseful(input)));
         }
 
         if (e instanceof ClassInstanceCreation) {

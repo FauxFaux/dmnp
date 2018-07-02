@@ -17,12 +17,12 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>r09</version>
+            <version>25.1-jre</version>
         </dependency>
         <dependency>
-            <groupId>com.intellij</groupId>
+            <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>7.0.3</version>
+            <version>16.0.2</version>
         </dependency>
     </dependencies>
 </project>

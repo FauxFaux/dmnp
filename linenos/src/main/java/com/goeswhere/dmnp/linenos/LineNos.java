@@ -5,11 +5,14 @@ import com.goeswhere.dmnp.util.ASMWrapper;
 import com.goeswhere.dmnp.util.InsnIter;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MapMaker;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -23,10 +26,12 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
+import java.nio.file.Files;
 import java.security.ProtectionDomain;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
 
 /**
  * $ java -Xbootclasspath/p:linenos.jar -javaagent:linenos.jar=package/to/break
@@ -35,8 +40,9 @@ public class LineNos implements ClassFileTransformer {
     private final String prefixString;
 
     public static void main(final String[] args) throws FileNotFoundException, IOException {
-        for (final String filename : args)
-            ByteStreams.write(messWith(ASMWrapper.makeCn(filename)), Files.newOutputStreamSupplier(new File(filename)));
+        for (final String filename : args) {
+            Files.write(new File(filename).toPath(), messWith(ASMWrapper.makeCn(filename)));
+        }
     }
 
     public static void premain(String agentArguments, Instrumentation instrumentation) throws UnmodifiableClassException {
@@ -150,15 +156,11 @@ public class LineNos implements ClassFileTransformer {
 
 
     @VisibleForTesting
-    static final Map<String, ClassNode> contentResolver =
-            new MapMaker().softValues().makeComputingMap(new Function<String, ClassNode>() {
+    static final LoadingCache<String, ClassNode> contentResolver =
+            CacheBuilder.newBuilder().softValues().build(new CacheLoader<String, ClassNode>() {
                 @Override
-                public ClassNode apply(String name) {
-                    try {
-                        return ASMWrapper.makeCn(new ClassReader(name));
-                    } catch (IOException e) {
-                        throw new IllegalStateException(e);
-                    }
+                public ClassNode load(String name) throws Exception {
+                    return ASMWrapper.makeCn(new ClassReader(name));
                 }
             });
 
@@ -173,7 +175,12 @@ public class LineNos implements ClassFileTransformer {
     }
 
     private static String attemptingTo(StackTraceElement e, final int ln) {
-        return ", attempting to " + prettify(LineNos.fromLine(contentResolver.get(e.getClassName()), ln), ln);
+        try {
+            return ", attempting to " + prettify(LineNos.fromLine(contentResolver.get(e.getClassName()), ln), ln);
+        } catch (ExecutionException e1) {
+            e1.printStackTrace();
+            return ", attempting operation at unknown location; decoding error: " + e1.getCause();
+        }
     }
 
     private static byte[] byteArray(ClassNode cn) {

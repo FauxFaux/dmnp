@@ -5,6 +5,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
+import com.google.common.util.concurrent.AtomicLongMap;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.Modifier.*;
 import org.eclipse.jface.text.BadLocationException;
@@ -57,7 +58,7 @@ public class Trace4jAst extends SimpleFileFixer {
         TYPE_SEQUENCE {
             @Override
             public String apply(String prefix) {
-                return prefix + KEYED_SEQUENCES.get(prefix).incrementAndGet();
+                return prefix + KEYED_SEQUENCES.incrementAndGet(prefix);
             }
         };
 
@@ -72,13 +73,7 @@ public class Trace4jAst extends SimpleFileFixer {
 
         private final static AtomicLong GLOBAL_SEQUENCE = new AtomicLong();
 
-        private final static Map<String, AtomicLong> KEYED_SEQUENCES = new MapMaker()
-                .makeComputingMap(new Function<String, AtomicLong>() {
-                    @Override
-                    public AtomicLong apply(String from) {
-                        return new AtomicLong();
-                    }
-                });
+        private final static AtomicLongMap<String> KEYED_SEQUENCES = AtomicLongMap.create();
     }
 
     public static interface Rewriter {

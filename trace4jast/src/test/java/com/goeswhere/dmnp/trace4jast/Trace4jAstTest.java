@@ -15,7 +15,7 @@ public class Trace4jAstTest {
 	private static final String INPUT = PREFIX + BODY + "} }";
 
 	private static final String LOGGER_AT_END = " private static final org.apache.log4j.Logger logger = " +
-					"org.apache.log4j.Logger .getLogger(A.class); }";
+					"org.apache.log4j.Logger.getLogger(A.class); }";
 
 	@Test public void simpleFinally() {
 		assertWashes(Trace4jAst.BuiltInRewriters.FINALLY_REWRITER,

@@ -41,7 +41,7 @@ public class DumClosed {
         }
     }
 
-    <U> Marker<U> markerOf(Map<String, U> names, U what) {
+    private <U> Marker<U> markerOf(Map<String, U> names, U what) {
         return new Marker<>(names, what);
     }
 
@@ -72,7 +72,7 @@ public class DumClosed {
         NOT,
     }
 
-    public DumClosed(String type, String method) {
+    private DumClosed(String type, String method) {
         this.type = type;
         this.method = method;
     }

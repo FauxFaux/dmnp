@@ -10,9 +10,9 @@ import java.util.Iterator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
-public class BetweenIterableTest {
+class BetweenIterableTest {
     @Test
-    public void docs() {
+    void docs() {
         final Iterable<Integer> bi = BetweenIterable.of(Arrays.asList(1, 2, 3, 4, 5, 6, 7), 2, 6);
         assertIterable(bi);
         assertEquals(Arrays.asList(3, 4, 5), Lists.newArrayList(bi));

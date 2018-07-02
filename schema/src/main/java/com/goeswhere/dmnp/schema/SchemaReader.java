@@ -18,7 +18,7 @@ import java.io.IOException;
  * dbupdateversion4_0=2
  * dbupdateversion4_1=3
  */
-public class SchemaReader {
+class SchemaReader {
 
     static interface Outputter {
         void output(String s);
@@ -90,7 +90,7 @@ public class SchemaReader {
     /**
      * A method is interesting if it's one of the schema update methods.
      */
-    static boolean interesting(String identifier) {
+    private static boolean interesting(String identifier) {
         return "checkSystemParameters".equalsIgnoreCase(identifier)
                 || "DBUpdate4".equalsIgnoreCase(identifier)
                 || identifier.toLowerCase().matches("checksystemparametersversion3_.")

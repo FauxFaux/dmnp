@@ -16,14 +16,14 @@ import static com.goeswhere.dmnp.util.BytecodeNames.unsupported;
 import static com.goeswhere.dmnp.util.FJava.*;
 
 
-public class Expression {
+class Expression {
     private static final Const CONST_ZERO = new Const(0);
 
     static String toSQL(Predicate<?> x) throws IOException {
         return format(toExpression(x));
     }
 
-    static Iterable<SList<Pred>> toExpression(Predicate<?> x) throws IOException {
+    private static Iterable<SList<Pred>> toExpression(Predicate<?> x) throws IOException {
         final ClassNode cn = ASMWrapper.refToCn(x);
         final Iterable<MethodNode> candidates =
                 filter(ASMContainers.methods(cn), method -> {
@@ -43,7 +43,7 @@ public class Expression {
                 SList.empty());
     }
 
-    static SList<SList<Pred>> recurse(InsnIter code, Deque<Token> localStack, SList<Pred> soFar) {
+    private static SList<SList<Pred>> recurse(InsnIter code, Deque<Token> localStack, SList<Pred> soFar) {
         while (true) {
             final AbstractInsnNode ins = code.next();
             final int opcode = ins.getOpcode();

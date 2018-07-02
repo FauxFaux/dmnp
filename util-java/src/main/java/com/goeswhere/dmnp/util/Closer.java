@@ -18,7 +18,7 @@ import java.util.ListIterator;
  *  b.whatever();
  * } finally { c.close(); }</pre>
  */
-public class Closer implements Closeable {
+class Closer implements Closeable {
     private List<Closeable> clo = Lists.newArrayList();
     private final ExceptionHandler eh;
 
@@ -40,12 +40,12 @@ public class Closer implements Closeable {
     }
 
     private static class ClosingFailedException extends RuntimeException {
-        public ClosingFailedException(Throwable cause) {
+        ClosingFailedException(Throwable cause) {
             super(cause);
         }
     }
 
-    public static interface ExceptionHandler {
+    static interface ExceptionHandler {
         void handle(Exception e);
     }
 
@@ -53,7 +53,7 @@ public class Closer implements Closeable {
         this(STDERR_EXCEPTION_HANDLER);
     }
 
-    public Closer(ExceptionHandler eh) {
+    private Closer(ExceptionHandler eh) {
         this.eh = eh;
     }
 
@@ -75,7 +75,7 @@ public class Closer implements Closeable {
         clo = null;
     }
 
-    public static Closeable wrap(final Connection c) {
+    private static Closeable wrap(final Connection c) {
         return () -> {
             try {
                 c.close();
@@ -85,7 +85,7 @@ public class Closer implements Closeable {
         };
     }
 
-    public static Closeable wrap(final Statement c) {
+    private static Closeable wrap(final Statement c) {
         return () -> {
             try {
                 c.close();

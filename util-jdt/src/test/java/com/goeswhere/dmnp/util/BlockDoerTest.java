@@ -14,7 +14,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BlockDoerTest {
+class BlockDoerTest {
     private static final int REPETITIONS = 500;
 
     private final class SaveString implements Runnable {
@@ -37,10 +37,10 @@ public class BlockDoerTest {
         }
     }
 
-    final Random r = new Random();
+    private final Random r = new Random();
 
     @Test
-    public void test() throws InterruptedException {
+    void test() throws InterruptedException {
         for (int i = 0; i < REPETITIONS; ++i) {
             final Set<String> ret = Collections.newSetFromMap(new ConcurrentHashMap<>());
             Lock l = new ReentrantReadWriteLock().writeLock();
@@ -57,7 +57,7 @@ public class BlockDoerTest {
     }
 
     @Test
-    public void testExecutor() throws InterruptedException {
+    void testExecutor() throws InterruptedException {
         for (int i = 0; i < REPETITIONS; ++i) {
             final Set<String> ret = Collections.newSetFromMap(new ConcurrentHashMap<>());
             Lock l = new ReentrantReadWriteLock().writeLock();

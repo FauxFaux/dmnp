@@ -11,9 +11,9 @@ import static com.goeswhere.dmnp.util.FileUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class FileUtilsTest {
+class FileUtilsTest {
     @Test
-    public void testSplits() {
+    void testSplits() {
         assertArrayEquals(new String[]{"a", "b"},
                 sysSplit("a" + File.pathSeparator + "b"));
         assertArrayEquals(new String[]{"a*", "b"},
@@ -21,7 +21,7 @@ public class FileUtilsTest {
     }
 
     @Test
-    public void testSplitStar() throws IOException, FailedException {
+    void testSplitStar() throws IOException, FailedException {
         final File td = createTempDir();
         try {
             final File childdir = new File(td + "/s");
@@ -40,7 +40,7 @@ public class FileUtilsTest {
     }
 
     @Test
-    public void testAbsolutePath() {
+    void testAbsolutePath() {
         final File f = new File("");
         assertEquals(f.getAbsolutePath(), ABSOLUTE_PATH.apply(f));
     }
@@ -49,10 +49,10 @@ public class FileUtilsTest {
         return ABSOLUTE_PATH.apply(new File(p));
     }
 
-    final FileFilter EVERYTHING_FILEFILTER = pathname -> true;
+    private final FileFilter EVERYTHING_FILEFILTER = pathname -> true;
 
     @Test
-    public void testFilesIn() {
+    void testFilesIn() {
         filesIn(new File("/"), EVERYTHING_FILEFILTER).iterator().next();
         Iterables.toString(filesIn(new File("."), EVERYTHING_FILEFILTER));
         javaFilesIn(".").iterator().next().getName().endsWith(".java");

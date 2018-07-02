@@ -13,10 +13,10 @@ import java.lang.reflect.Method;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class LineNosTest {
+class LineNosTest {
 
     @Test
-    public void simple() throws Throwable {
+    void simple() throws Throwable {
         final Mutable<ClassNode> cn = Mutable.create();
         try {
             invoke(A.class, "run", cn);

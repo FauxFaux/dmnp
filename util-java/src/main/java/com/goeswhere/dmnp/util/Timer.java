@@ -1,6 +1,6 @@
 package com.goeswhere.dmnp.util;
 
-public class Timer {
+class Timer {
     private Timer() {
         throw new AssertionError();
     }

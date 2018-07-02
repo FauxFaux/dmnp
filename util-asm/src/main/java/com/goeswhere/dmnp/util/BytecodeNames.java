@@ -1,7 +1,7 @@
 package com.goeswhere.dmnp.util;
 
 public class BytecodeNames {
-    public static String name(int code) {
+    private static String name(int code) {
         switch (code) {
             case 0:
                 return "nop";

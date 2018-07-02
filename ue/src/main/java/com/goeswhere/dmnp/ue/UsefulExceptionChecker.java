@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class UsefulExceptionChecker {
+class UsefulExceptionChecker {
 
     static final class ProcessFolder implements Runnable {
         final List<String> output;
@@ -74,7 +74,7 @@ public class UsefulExceptionChecker {
         }
     }
 
-    static void processDir(File dir, ResultAccumulator ra) throws IOException {
+    private static void processDir(File dir, ResultAccumulator ra) throws IOException {
         if (null == dir || null == dir.listFiles()) {
             System.err.println("Invalid dir: " + dir);
             return;
@@ -88,7 +88,7 @@ public class UsefulExceptionChecker {
                     processFile(child.getPath(), ra);
     }
 
-    static void processFile(final String filename, ResultAccumulator ra) throws IOException {
+    private static void processFile(final String filename, ResultAccumulator ra) throws IOException {
         processString(new File(filename).getName(), FileUtils.consumeFile(filename), ra);
     }
 

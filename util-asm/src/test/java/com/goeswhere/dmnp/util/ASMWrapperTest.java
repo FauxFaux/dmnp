@@ -12,9 +12,9 @@ import java.util.Map.Entry;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ASMWrapperTest {
+class ASMWrapperTest {
     @Test
-    public void compile() throws IOException, FailedException {
+    void compile() throws IOException, FailedException {
         final Map<String, ClassNode> nodes = ASMWrapper.compileToClassNodes("class A { void foo() { } }");
         final Entry<String, ClassNode> nodeentry = Iterables.getOnlyElement(nodes.entrySet());
         final ClassNode node = nodeentry.getValue();
@@ -26,7 +26,7 @@ public class ASMWrapperTest {
     }
 
     @Test
-    public void methodFromClass() throws IOException {
+    void methodFromClass() throws IOException {
         assertEquals("hashCode", ASMWrapper.getMethod(new Object(), "hashCode").name);
     }
 }

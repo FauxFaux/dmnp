@@ -108,7 +108,7 @@ class UsefullyUsesException extends ASTVisitor {
     /**
      * If the expression is a name equal to the one we're looking for
      */
-    void setIfMatches(final Expression exp) {
+    private void setIfMatches(final Expression exp) {
         if (compareIfSimpleNode(exceptionName, exp))
             useful = true;
     }

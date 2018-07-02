@@ -7,9 +7,9 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ContainersTest {
+class ContainersTest {
     @Test
-    public void testHRList() {
+    void testHRList() {
         assertEquals("1", Containers.hrList(Collections.singletonList(1)));
         assertEquals("1 and 2", Containers.hrList(Arrays.asList(1, 2)));
         assertEquals("1, 2 and 3", Containers.hrList(Arrays.asList(1, 2, 3)));

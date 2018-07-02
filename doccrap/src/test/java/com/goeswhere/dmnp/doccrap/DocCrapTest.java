@@ -5,9 +5,9 @@ import org.junit.jupiter.api.Test;
 import static com.goeswhere.dmnp.doccrap.DocCrap.cleanCU;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DocCrapTest {
+class DocCrapTest {
     @Test
-    public void testRemovesTwo() {
+    void testRemovesTwo() {
         assertEquals("class A {\n" +
                         "    /**\n" +
                         "     * the foo method\n" +
@@ -27,7 +27,7 @@ public class DocCrapTest {
     }
 
     @Test
-    public void testGetterReturn() {
+    void testGetterReturn() {
         assertEquals("class A {\n" +
                         "    int getFoo() { }\n" +
                         "}\n",
@@ -40,7 +40,7 @@ public class DocCrapTest {
     }
 
     @Test
-    public void testReturnType() {
+    void testReturnType() {
         assertEquals("class A {\n" +
                         "    int getFoo() { }\n" +
                         "}\n",
@@ -53,7 +53,7 @@ public class DocCrapTest {
     }
 
     @Test
-    public void testDash() {
+    void testDash() {
         assertEquals("class A {\n" +
                         "    int getFoo(int a) { }\n" +
                         "}\n",
@@ -67,7 +67,7 @@ public class DocCrapTest {
     }
 
     @Test
-    public void testTypeDash() {
+    void testTypeDash() {
         assertEquals("class A {\n" +
                         "    int getFoo(int a) { }\n" +
                         "}\n",
@@ -82,7 +82,7 @@ public class DocCrapTest {
 
 
     @Test
-    public void testReturnEmpty() {
+    void testReturnEmpty() {
         assertEquals("class A {\n" +
                         "    int getFoo() { }\n" +
                         "}\n",
@@ -95,7 +95,7 @@ public class DocCrapTest {
     }
 
     @Test
-    public void testAtTag() {
+    void testAtTag() {
         assertEquals("class A {\n" +
                         "    int getFoo() { }\n" +
                         "}\n",
@@ -108,7 +108,7 @@ public class DocCrapTest {
     }
 
     @Test
-    public void testRemovesWholly() {
+    void testRemovesWholly() {
         assertEquals("class A {\n" +
                         "    void foo(int a, int b) { }\n" +
                         "}\n",
@@ -122,7 +122,7 @@ public class DocCrapTest {
     }
 
     @Test
-    public void testNoDoc() {
+    void testNoDoc() {
         final String nodoc = "class A {\n" +
                 "    void foo(int a, int b) { }\n" +
                 "}\n";

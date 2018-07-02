@@ -9,10 +9,10 @@ import java.util.Set;
 
 import static com.goeswhere.dmnp.util.FileUtils.javaFilesIn;
 
-public class CompileSettings {
+class CompileSettings {
     private static final String FILE_SEPARATOR_REPLACE = File.separator.replaceAll("\\\\", "\\\\\\\\");
 
-    static Set<String> find(File root) throws IOException {
+    private static Set<String> find(File root) throws IOException {
         final String cwd = new File("").getAbsolutePath() + File.separator;
 
         final Set<String> sourcePaths = Sets.newHashSet();

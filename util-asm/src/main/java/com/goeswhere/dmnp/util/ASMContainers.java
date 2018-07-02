@@ -27,7 +27,7 @@ public class ASMContainers {
     }
 
     @SuppressWarnings("unchecked")
-    public static List<FieldNode> fields(ClassNode cn) {
+    private static List<FieldNode> fields(ClassNode cn) {
         return cn.fields;
     }
 
@@ -36,8 +36,8 @@ public class ASMContainers {
         return cn.interfaces;
     }
 
-    public static final Function<FieldNode, String> NAME_FIELDNODE = from -> from.name;
-    public static final Function<MethodNode, String> NAME_METHODNODE = from -> from.name;
+    private static final Function<FieldNode, String> NAME_FIELDNODE = from -> from.name;
+    private static final Function<MethodNode, String> NAME_METHODNODE = from -> from.name;
 
     public static List<String> fieldNames(final ClassNode cn) {
         return fields(cn).stream().map(NAME_FIELDNODE::apply).collect(Collectors.toList());
@@ -48,7 +48,7 @@ public class ASMContainers {
     }
 
 
-    public static boolean isPrivate(final int acc) {
+    private static boolean isPrivate(final int acc) {
         return hasBit(acc, Opcodes.ACC_PRIVATE);
     }
 
@@ -56,15 +56,15 @@ public class ASMContainers {
         return !isProtected(acc) && !isPrivate(acc) && !isPublic(acc);
     }
 
-    public static boolean isProtected(final int acc) {
+    private static boolean isProtected(final int acc) {
         return hasBit(acc, Opcodes.ACC_PROTECTED);
     }
 
-    public static boolean isPublic(final int acc) {
+    private static boolean isPublic(final int acc) {
         return hasBit(acc, Opcodes.ACC_PUBLIC);
     }
 
-    public static String packageOf(String name) {
+    private static String packageOf(String name) {
         return name.replaceFirst("/?([^/]*?)$", "");
     }
 

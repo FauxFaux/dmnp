@@ -21,7 +21,7 @@ public class SchemaReaderTest {
     }
 
     @Test
-    public void javadoc() {
+    void javadoc() {
         final ListOutputter out = new ListOutputter();
 
         SchemaReader.go("class Foo {" +
@@ -33,7 +33,7 @@ public class SchemaReaderTest {
     }
 
     @Test
-    public void tryblock() {
+    void tryblock() {
         final ListOutputter out = new ListOutputter();
 
         SchemaReader.go("class Foo {" +

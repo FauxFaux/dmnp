@@ -12,7 +12,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class UETest {
+class UETest {
 
 
     private static final String SAFE_METHOD = "void a() { " +
@@ -20,83 +20,83 @@ public class UETest {
 
     // positives:
     @Test
-    public void rethrow() {
+    void rethrow() {
         assertEquals(ImmutableSet.of(), go("throw a;"));
     }
 
     @Test
-    public void logged() {
+    void logged() {
         assertEquals(ImmutableSet.of(), go("logger.warn(\"\", a);"));
     }
 
     @Test
-    public void wrapped() {
+    void wrapped() {
         assertEquals(ImmutableSet.of(), go("throw new RuntimeException(a);"));
         assertEquals(ImmutableSet.of(), go("throw new RuntimeException(\"\", a);"));
     }
 
     @Test
-    public void canadalae() {
+    void canadalae() {
         assertEquals(ImmutableSet.of(), go(
                 "logger.warn(\"\", a);" +
                         "throw new RuntimeException(a.toString());"));
     }
 
     @Test
-    public void caps() {
+    void caps() {
         assertEquals(ImmutableSet.of(), goClass("class A { Logger loGGeR; void a() { " +
                 "try { } catch (RuntimeException e) { loGGeR.warn(\"\", e); } } }"));
     }
 
     // negatives:
     @Test
-    public void empty() {
+    void empty() {
         assertEquals(ImmutableSet.of("a"), go(""));
     }
 
     @Test
-    public void badlogged() {
+    void badlogged() {
         assertEquals(ImmutableSet.of("a"), go("logger.warn(a);"));
     }
 
     @Test
-    public void badthrown() {
+    void badthrown() {
         assertEquals(ImmutableSet.of("a"), go("throw new RuntimeException(a.toString());"));
     }
 
     // The If Hack:
     @Test
-    public void cfg() {
+    void cfg() {
         assertEquals(ImmutableSet.of("a"), go("if (false) logger.warn(\"\", a);"));
     }
 
     @Test
-    public void cfgelse() {
+    void cfgelse() {
         assertEquals(ImmutableSet.of("a"), go("if (false) logger.warn(\"\", a); else return;"));
     }
 
     @Test
-    public void cfgonlyelse() {
+    void cfgonlyelse() {
         assertEquals(ImmutableSet.of("a"), go("if (false) return; else logger.warn(\"\", a);"));
     }
 
     @Test
-    public void cfgneither() {
+    void cfgneither() {
         assertEquals(ImmutableSet.of(), go("if (false) return; else return; logger.warn(\"\", a);"));
     }
 
     @Test
-    public void fieldbefore() {
+    void fieldbefore() {
         assertEquals(ImmutableSet.of(), goClass("class A { Logger l; " + SAFE_METHOD + "}"));
     }
 
     @Test
-    public void fieldafter() {
+    void fieldafter() {
         assertEquals(ImmutableSet.of(), goClass("class A { " + SAFE_METHOD + " Logger l; }"));
     }
 
     @Test
-    public void noLogger() {
+    void noLogger() {
         assertEquals(ImmutableSet.of("e"), goClass("class A { void a() { " +
                 "try { } catch (RuntimeException e) { logger.warn(\"\", e); } } }"));
     }
@@ -105,14 +105,14 @@ public class UETest {
     // Questionable.. shouldn't be a problem so long as all the source compiles;
     // it's not like anything else works on string manipulation anyway:
     @Test
-    public void multiClass() {
+    void multiClass() {
         assertEquals(ImmutableSet.of(), goClass("class B { Logger l; } class A { " + SAFE_METHOD + " }"));
     }
 
 
     @Disabled("Not done yet")
     @Test
-    public void throworlog() throws Exception {
+    void throworlog() throws Exception {
         assertEquals(ImmutableSet.of(), go("if (false) throw a; logger.warn(\"\", a);}"));
     }
 

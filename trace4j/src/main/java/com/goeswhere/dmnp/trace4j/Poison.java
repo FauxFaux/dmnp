@@ -22,12 +22,12 @@ import java.util.Set;
 
 import static com.goeswhere.dmnp.util.ASMWrapper.makeCn;
 
-public class Poison implements ClassFileTransformer {
+class Poison implements ClassFileTransformer {
 
     private static final String LEVEL = "trace";
 
-    static final String LOG4J_CLASSSLASHES = "org/apache/log4j/Logger";
-    static final String LOG4J_DESC = "L" + LOG4J_CLASSSLASHES + ";";
+    private static final String LOG4J_CLASSSLASHES = "org/apache/log4j/Logger";
+    private static final String LOG4J_DESC = "L" + LOG4J_CLASSSLASHES + ";";
     private static final int PRIVATE_FINAL_STATIC = Opcodes.ACC_PRIVATE + Opcodes.ACC_FINAL + Opcodes.ACC_STATIC;
 
     private final String prefixString;
@@ -156,11 +156,11 @@ public class Poison implements ClassFileTransformer {
     }
 
     @SuppressWarnings("unchecked")
-    static void addField(ClassNode cn, FieldNode fieldNode) {
+    private static void addField(ClassNode cn, FieldNode fieldNode) {
         cn.fields.add(fieldNode);
     }
 
-    public Poison(String prefixString) {
+    private Poison(String prefixString) {
         this.prefixString = prefixString;
     }
 

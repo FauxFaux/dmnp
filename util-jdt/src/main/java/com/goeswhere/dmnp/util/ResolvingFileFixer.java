@@ -23,7 +23,7 @@ import static com.goeswhere.dmnp.util.FileUtils.*;
  */
 public abstract class ResolvingFileFixer extends FileFixer {
 
-    public static interface Creator {
+    protected static interface Creator {
         Function<String, String> create(String[] cp, String[] sourcePath, String unitName, Lock compileLock);
     }
 
@@ -53,11 +53,11 @@ public abstract class ResolvingFileFixer extends FileFixer {
     /**
      * Process parameters for main, then do work.
      */
-    public static void main(String[] args, Creator creator) throws InterruptedException {
+    protected static void main(String[] args, Creator creator) throws InterruptedException {
         main(null, 0, args, creator);
     }
 
-    public static void main(String extra, int excount, String[] args, Creator creator) throws InterruptedException {
+    protected static void main(String extra, int excount, String[] args, Creator creator) throws InterruptedException {
         if (excount + 3 != args.length && excount + 4 != args.length) {
             System.err.println("Usage: " +
                     (excount != 0 ? extra + " " : "") +
@@ -73,7 +73,7 @@ public abstract class ResolvingFileFixer extends FileFixer {
         loop(cp, sourcePath, path, creator);
     }
 
-    protected static String getFileName() {
+    private static String getFileName() {
         return FILE_NAME.get();
     }
 
@@ -124,7 +124,7 @@ public abstract class ResolvingFileFixer extends FileFixer {
         }
     }
 
-    public static String unitName(String path) {
+    private static String unitName(String path) {
         final String f = new File(path).getName();
         final String ext = ".java";
         Preconditions.checkArgument(f.endsWith(ext));

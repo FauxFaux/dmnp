@@ -18,7 +18,7 @@ import static com.goeswhere.dmnp.util.ASTWrapper.doesNothingUseful;
 import static com.goeswhere.dmnp.util.ASTWrapper.rewrite;
 
 
-public class SlowDSL extends ResolvingFileFixer {
+class SlowDSL extends ResolvingFileFixer {
 
     public static void main(String[] args) throws InterruptedException {
         main(args, (cp, sourcePath, name, l) -> new SlowDSL(cp, sourcePath, name, l));

@@ -7,10 +7,10 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ExpressionTest {
+class ExpressionTest {
 
     @Test
-    public void testSingleInt() throws IOException {
+    void testSingleInt() throws IOException {
         assertEquals("(a = 7)",
                 Expression.toSQL(new Predicate<FooDTO>() {
                     @Override
@@ -21,7 +21,7 @@ public class ExpressionTest {
     }
 
     @Test
-    public void testNotEqualInt1() throws IOException {
+    void testNotEqualInt1() throws IOException {
         assertEquals("(a <> 7)",
                 Expression.toSQL(new Predicate<FooDTO>() {
                     @Override
@@ -32,7 +32,7 @@ public class ExpressionTest {
     }
 
     @Test
-    public void testNotEqualInt2() throws IOException {
+    void testNotEqualInt2() throws IOException {
         assertEquals("(a <> 7)",
                 Expression.toSQL(new Predicate<FooDTO>() {
                     @Override
@@ -43,7 +43,7 @@ public class ExpressionTest {
     }
 
     @Test
-    public void testNotEqualInt3() throws IOException {
+    void testNotEqualInt3() throws IOException {
         assertEquals("(a <> 7)",
                 Expression.toSQL(new Predicate<FooDTO>() {
                     @Override
@@ -56,7 +56,7 @@ public class ExpressionTest {
     }
 
     @Test
-    public void testSingleString() throws IOException {
+    void testSingleString() throws IOException {
         assertEquals("(b = 'pony')",
                 Expression.toSQL(new Predicate<FooDTO>() {
                     @Override
@@ -67,7 +67,7 @@ public class ExpressionTest {
     }
 
     @Test
-    public void testSingleStringRev() throws IOException {
+    void testSingleStringRev() throws IOException {
         assertEquals("(b = 'pony')",
                 Expression.toSQL(new Predicate<FooDTO>() {
                     @Override
@@ -78,7 +78,7 @@ public class ExpressionTest {
     }
 
     @Test
-    public void testStringRef() throws IOException {
+    void testStringRef() throws IOException {
         assertEquals("(b = 'pony')",
                 Expression.toSQL(new Predicate<FooDTO>() {
                     @Override
@@ -89,7 +89,7 @@ public class ExpressionTest {
     }
 
     @Test
-    public void testStringRefRev() throws IOException {
+    void testStringRefRev() throws IOException {
         assertEquals("(b = 'pony')",
                 Expression.toSQL(new Predicate<FooDTO>() {
                     @Override
@@ -100,7 +100,7 @@ public class ExpressionTest {
     }
 
     @Test
-    public void testStringNotRef() throws IOException {
+    void testStringNotRef() throws IOException {
         assertEquals("(b <> 'pony')",
                 Expression.toSQL(new Predicate<FooDTO>() {
                     @Override
@@ -111,7 +111,7 @@ public class ExpressionTest {
     }
 
     @Test
-    public void testSingleStringNot() throws IOException {
+    void testSingleStringNot() throws IOException {
         assertEquals("(b = 'pony')",
                 Expression.toSQL(new Predicate<FooDTO>() {
                     @Override
@@ -122,7 +122,7 @@ public class ExpressionTest {
     }
 
     @Test
-    public void testAnd() throws IOException {
+    void testAnd() throws IOException {
         assertEquals("(a > 7 AND a <= 20)",
                 Expression.toSQL(new Predicate<FooDTO>() {
                     @Override
@@ -133,7 +133,7 @@ public class ExpressionTest {
     }
 
     @Test
-    public void testAndString() throws IOException {
+    void testAndString() throws IOException {
         assertEquals("(a = 7 AND b = 'pony')",
                 Expression.toSQL(new Predicate<FooDTO>() {
                     @Override
@@ -144,7 +144,7 @@ public class ExpressionTest {
     }
 
     @Test
-    public void testOrAndSingle() throws IOException {
+    void testOrAndSingle() throws IOException {
         assertEquals("(a = 7 AND b = 'pony') OR\n" +
                         "(a = 8 AND b = 'pony') OR\n" +
                         "(a = 9 AND b = 'pony')",
@@ -157,7 +157,7 @@ public class ExpressionTest {
     }
 
     @Test
-    public void testOrAndMulti() throws IOException {
+    void testOrAndMulti() throws IOException {
         assertEquals("(a = 7 AND c = 5) OR\n" +
                         "(a = 8 AND c = 5) OR\n" +
                         "(a = 7 AND c = 6) OR\n" +
@@ -171,7 +171,8 @@ public class ExpressionTest {
     }
 
     static class FooDTO {
-        public int a, c;
-        public String b;
+        int a;
+        int c;
+        String b;
     }
 }

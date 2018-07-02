@@ -11,7 +11,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CloserTest {
+class CloserTest {
     private final class TestCloseable implements Closeable {
         private final List<Integer> res;
         private final int a;
@@ -34,12 +34,12 @@ public class CloserTest {
     }
 
     @Test
-    public void testNothing() {
+    void testNothing() {
         new Closer().close();
     }
 
     @Test
-    public void testOne() {
+    void testOne() {
         final List<Integer> res = Lists.newArrayList();
         try (Closer c = new Closer()) {
             c.add(new TestCloseable(res, 1));
@@ -48,7 +48,7 @@ public class CloserTest {
     }
 
     @Test
-    public void testTwo() {
+    void testTwo() {
         final List<Integer> res = Lists.newArrayList();
         try (Closer c = new Closer()) {
             c.add(new TestCloseable(res, 1));

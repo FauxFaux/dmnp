@@ -9,39 +9,39 @@ import java.io.StringReader;
 import static com.goeswhere.dmnp.util.DumbParsing.packageOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DumbParsingTest {
+class DumbParsingTest {
     @Test
-    public void testPackageOfSimple() throws IOException {
+    void testPackageOfSimple() throws IOException {
         assertPackageOf("com.pony.ponies", "package com.pony.ponies;\nclass A {\n\tint a;\n}\n");
     }
 
     @Test
-    public void testPackageOfComment() throws IOException {
+    void testPackageOfComment() throws IOException {
         assertPackageOf("pony", "/** COPYRIGHT */\npackage pony;\nclass A {\n\tint a;\n}\n");
     }
 
     @Test
-    public void testPackageOfLineComment() throws IOException {
+    void testPackageOfLineComment() throws IOException {
         assertPackageOf("pony", "// COPYRIGHT\npackage pony;\nclass A {\n\tint a;\n}\n");
     }
 
     @Test
-    public void testPackageOfu() throws IOException {
+    void testPackageOfu() throws IOException {
         assertPackageOf("pony", "// u\npackage pony;\nclass A {\n\tint a;\n}\n");
     }
 
     @Test
-    public void testPackageOfu1571() throws IOException {
+    void testPackageOfu1571() throws IOException {
         assertPackageOf("pon\u1571", "package pon\\u1571;\nclass A {\n\tint a;\n}\n");
     }
 
     @Test
-    public void testPackageOfNone() throws IOException {
+    void testPackageOfNone() throws IOException {
         assertPackageOf(null, "class A {\n\tint a;\n}\n");
     }
 
     @Test
-    public void testPackageOfCpp() throws IOException {
+    void testPackageOfCpp() throws IOException {
         assertPackageOf("pony", "//\\u000a/*\n" +
                 "c++\n" +
                 "//*/\n" +

@@ -75,7 +75,7 @@ public class ASTWrapper {
     public static class HadProblems extends IllegalArgumentException {
         public final CompilationUnit cu;
 
-        public HadProblems(CompilationUnit cu) {
+        HadProblems(CompilationUnit cu) {
             super("Compile had problems " + ASTContainers.types(cu).get(0).getName()
                     + ": " + Arrays.toString(cu.getProblems()));
             this.cu = cu;
@@ -92,7 +92,7 @@ public class ASTWrapper {
     /**
      * Return the Java 5 CU for the string, with bindings and shiz.
      */
-    public static CompilationUnit compile(String src, String[] classpath, String[] source) {
+    private static CompilationUnit compile(String src, String[] classpath, String[] source) {
         return compile(src, "OnlyNecessaryForPublicClasses", classpath, source);
     }
 //
@@ -170,7 +170,7 @@ public class ASTWrapper {
         return extractSingleMethod(classBody, null, null);
     }
 
-    public static MethodDeclaration extractSingleMethod(final String classBody, String[] classpath, String[] source) {
+    private static MethodDeclaration extractSingleMethod(final String classBody, String[] classpath, String[] source) {
         return extractMethodImpl(classBody, classpath, source, ExtractMethodMode.SINGLE);
     }
 
@@ -200,7 +200,7 @@ public class ASTWrapper {
         return ret;
     }
 
-    public static MethodDeclaration extractLastMethod(final String classBody, String[] classpath, String[] source) {
+    private static MethodDeclaration extractLastMethod(final String classBody, String[] classpath, String[] source) {
         return extractMethodImpl(classBody, classpath, source, ExtractMethodMode.LAST);
     }
 
@@ -231,7 +231,7 @@ public class ASTWrapper {
         return rewrite(new Document(src), rewrite);
     }
 
-    public static String rewrite(final Document doc, final ASTRewrite rewrite) {
+    private static String rewrite(final Document doc, final ASTRewrite rewrite) {
         return edit(doc, rewrite.rewriteAST(doc, null));
     }
 
@@ -310,8 +310,8 @@ public class ASTWrapper {
         }
     }
 
-    public static class ParentIsntBlock extends IllegalArgumentException {
-        public ParentIsntBlock(String s) {
+    static class ParentIsntBlock extends IllegalArgumentException {
+        ParentIsntBlock(String s) {
             super(s);
         }
     }

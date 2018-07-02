@@ -20,20 +20,20 @@ import java.util.concurrent.locks.Lock;
 import static com.goeswhere.dmnp.util.ASTContainers.*;
 import static com.goeswhere.dmnp.util.ASTWrapper.rewrite;
 
-public class PrepLookup extends ResolvingFileFixer {
+class PrepLookup extends ResolvingFileFixer {
     private final Map<String, Integer> functionPrefix;
     private final String safeSQL;
     private final String dateFormat;
 
-    protected PrepLookup(String[] classpath, String[] sourcepath,
-                         String unitName, Lock compilerLock, Map<String, Integer> function) {
+    PrepLookup(String[] classpath, String[] sourcepath,
+               String unitName, Lock compilerLock, Map<String, Integer> function) {
         this(classpath, sourcepath, unitName, compilerLock, function,
                 getProperty("safesql"), getProperty("dateformat"));
     }
 
-    PrepLookup(String[] classpath, String[] sourcepath,
-               String unitName, Lock compilerLock, Map<String, Integer> function,
-               String safeSQL, String dateFormat) {
+    private PrepLookup(String[] classpath, String[] sourcepath,
+                       String unitName, Lock compilerLock, Map<String, Integer> function,
+                       String safeSQL, String dateFormat) {
         super(classpath, sourcepath, unitName, compilerLock);
         this.functionPrefix = function;
         this.safeSQL = safeSQL;

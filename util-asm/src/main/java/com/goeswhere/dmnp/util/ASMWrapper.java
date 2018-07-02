@@ -38,7 +38,7 @@ public class ASMWrapper {
     /**
      * javax.Compiler name.java containing the src and return all the ClassNodes output
      */
-    public static Map<String, ClassNode> compileToClassNodes(String name, String src) throws IOException, FailedException {
+    private static Map<String, ClassNode> compileToClassNodes(String name, String src) throws IOException, FailedException {
         return compileToClassNodes(Collections.singletonList(new JavaSourceFromString(name, src)));
     }
 
@@ -85,7 +85,7 @@ public class ASMWrapper {
             readFiles(fi, ret);
     }
 
-    static ClassNode compileSingle(String name, String src) throws IOException, FailedException {
+    private static ClassNode compileSingle(String name, String src) throws IOException, FailedException {
         ClassNode cn = compileToClassNodes(name, src).get(name);
         if (null == cn)
             throw new FailedException("Apparently didn't generate a class of that name..");
@@ -130,7 +130,7 @@ public class ASMWrapper {
         return cn;
     }
 
-    public static ClassNode makeCn(InputStream file) throws IOException, FileNotFoundException {
+    private static ClassNode makeCn(InputStream file) throws IOException, FileNotFoundException {
         return ASMWrapper.makeCn(new ClassReader(file));
     }
 

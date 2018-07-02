@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * $ java -Xbootclasspath/p:linenos.jar -javaagent:linenos.jar=package/to/break
  */
-public class LineNos implements ClassFileTransformer {
+class LineNos implements ClassFileTransformer {
     private final String prefixString;
 
     public static void main(final String[] args) throws FileNotFoundException, IOException {

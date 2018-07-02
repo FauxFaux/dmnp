@@ -31,7 +31,7 @@ public class Containers {
         return p == null ? String.valueOf(null) : p.getClass() + ": " + p;
     }
 
-    public static String hrList(final List<?> el, final String and) {
+    private static String hrList(final List<?> el, final String and) {
         final StringBuilder sb = new StringBuilder(10 * el.size());
         for (int i = 0; i < el.size(); ++i) {
             sb.append(el.get(i));

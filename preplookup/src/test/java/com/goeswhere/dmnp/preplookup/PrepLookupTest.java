@@ -9,7 +9,7 @@ import java.util.Map;
 import static com.goeswhere.dmnp.util.TestUtils.cleanWhitespace;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PrepLookupTest {
+class PrepLookupTest {
     private static final String SUFFIX = "import java.util.Date;" +
             "class A {" +
             " void DLookupInt(String q, String r, String s) {}" +
@@ -23,24 +23,24 @@ public class PrepLookupTest {
     private static final String[] EMPTY = new String[0];
 
     @Test
-    public void trivial() {
+    void trivial() {
         assertPrepsTo(SUFFIX + "int a = 5; DLookupInt(\"\",\"\",\"a=?\", new Object[] { a }); } }",
                 SUFFIX + "int a = 5; DLookupInt(\"\",\"\",\"a=\" + a); } }");
     }
 
     @Test
-    public void stringNotSafe() {
+    void stringNotSafe() {
         assertDoesntChange(SUFFIX + "String a = null; DLookupInt(\"\",\"\",\"a=\" + a); } }");
     }
 
     @Test
-    public void ignoreConsts() {
+    void ignoreConsts() {
         assertDoesntChange(SUFFIX + "DLookupInt(\"\",\"\",\"a=\" + QQ); } }");
     }
 
 
     @Test
-    public void dateFormat() {
+    void dateFormat() {
         assertPrepsTo(SUFFIX + "Date d = new Date(); DLookupInt(\"\",\"\",\"a=?\", new Object[] { d }); } }",
                 SUFFIX + "Date d = new Date(); DLookupInt(\"\",\"\",\"a=\" + dateFormat(d)); } }");
         assertPrepsTo(SUFFIX + "Date d = new Date(); DLookupInt(\"\",\"\",\"a=?\" + \" AND b=?\", new Object[] { d, d }); } }",
@@ -48,39 +48,39 @@ public class PrepLookupTest {
     }
 
     @Test
-    public void pickyAboutFunctions() {
+    void pickyAboutFunctions() {
         assertDoesntChange(SUFFIX + "Date d = new Date(); DLookupInt(\"\",\"\",\"a=\" + foo(d)); } }");
     }
 
     @Test
-    public void multiple() {
+    void multiple() {
         assertPrepsTo(SUFFIX + "int a = 5; DLookupInt(\"\",\"\",\"a=?\" + \" AND b<>?\"," +
                         " new Object[] { a, bar() }); } }",
                 SUFFIX + "int a = 5; DLookupInt(\"\",\"\",\"a=\" + a + \" AND b<>\" + bar()); } }");
     }
 
     @Test
-    public void litOnly() {
+    void litOnly() {
         assertPrepsTo(SUFFIX + "String a = null; DLookupInt(\"\",\"\",\"a=?\"," +
                         " new Object[] { a }); } }",
                 SUFFIX + "String a = null; DLookupInt(\"\",\"\",\"a='\" + safeSQL(a) + \"'\"); } }");
     }
 
     @Test
-    public void wrongSafeSql() {
+    void wrongSafeSql() {
         assertDoesntChange(SUFFIX + "String a = null; DLookupInt(\"\",\"\",\"a=\" + safeSQL(a)); } }");
         assertDoesntChange(SUFFIX + "String a = null; DLookupInt(\"\",\"\",\"a=\" + safeSQL(a) + \" and b=5\"); } }");
     }
 
     @Test
-    public void dontDamageNoChangesQuotes() {
+    void dontDamageNoChangesQuotes() {
         assertDoesntChange(SUFFIX + "int a = 0; String b = null;"
                 + "DLookupInt(\"\",\"\",\"a='\" + a + \"' AND b=\" + b); } }");
     }
 
 
     @Test
-    public void otherFunc() {
+    void otherFunc() {
         assertPrepsTo(ImmutableMap.of("pony", 0),
                 SUFFIX + "String a = null; ponyBadger(\"a=?\"," +
                         " new Object[] { a }); } }",
@@ -88,7 +88,7 @@ public class PrepLookupTest {
     }
 
     @Test
-    public void quotes() {
+    void quotes() {
         assertPrepsTo(SUFFIX + "int a = 5; DLookupInt(\"\",\"\",\"b='b' AND a=?\", new Object[] { a }); } }",
                 SUFFIX + "int a = 5; DLookupInt(\"\",\"\",\"b='b' AND a=\" + a); } }");
 

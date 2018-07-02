@@ -23,8 +23,8 @@ public class FileUtils {
 
     public static final Function<File, String> ABSOLUTE_PATH = f -> f.getAbsolutePath();
 
-    public static class RuntimeIOException extends RuntimeException {
-        public RuntimeIOException(IOException e) {
+    static class RuntimeIOException extends RuntimeException {
+        RuntimeIOException(IOException e) {
             super(e);
         }
 
@@ -48,7 +48,7 @@ public class FileUtils {
         return consumeFile(new FileInputStream(f));
     }
 
-    public static String consumeFile(final InputStream in) throws IOException {
+    private static String consumeFile(final InputStream in) throws IOException {
         return consumeFile(new InputStreamReader(in, DEFAULT_ENCODING));
     }
 
@@ -96,7 +96,7 @@ public class FileUtils {
         return filesIn(new File(path), ext);
     }
 
-    public static Iterable<File> filesIn(final File root, final String ext) {
+    private static Iterable<File> filesIn(final File root, final String ext) {
         final String dottedex = "." + ext;
 
         return filesIn(root, pathname -> pathname.getName().endsWith(dottedex));
@@ -114,7 +114,7 @@ public class FileUtils {
             return Collections.emptyList();
 
         return concatMap(Arrays.asList(fl),
-                from -> from.isDirectory() ? filesIn(from, ff) : Arrays.asList(from));
+                from -> from.isDirectory() ? filesIn(from, ff) : Collections.singletonList(from));
     }
 
     public static File createTempDir(final String name) throws IOException, FailedException {

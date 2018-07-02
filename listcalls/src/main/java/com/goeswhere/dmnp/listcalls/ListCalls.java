@@ -12,12 +12,12 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
-public class ListCalls extends ResolvingFileFixer {
+class ListCalls extends ResolvingFileFixer {
 
     private final Set<String> results;
 
-    protected ListCalls(String[] classpath, String[] sourcepath,
-                        String unitName, Lock compilerLock, Set<String> results) {
+    private ListCalls(String[] classpath, String[] sourcepath,
+                      String unitName, Lock compilerLock, Set<String> results) {
         super(classpath, sourcepath, unitName, compilerLock);
         this.results = results;
     }

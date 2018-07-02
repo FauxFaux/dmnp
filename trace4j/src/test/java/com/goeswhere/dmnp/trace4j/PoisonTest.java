@@ -17,10 +17,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PoisonTest {
+class PoisonTest {
 
     @Test
-    public void simple() throws IOException, InstantiationException, IllegalAccessException {
+    void simple() throws IOException, InstantiationException, IllegalAccessException {
         final byte[] a = Poison.addLogging(ASMWrapper.refToCn(new A()));
         attempInstantiation(A.class, a);
 
@@ -60,7 +60,7 @@ public class PoisonTest {
     }
 
 
-    public static class A {
+    static class A {
         void foo() {
             System.out.println("hi");
         }

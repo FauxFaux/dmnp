@@ -12,7 +12,7 @@ import java.util.concurrent.locks.Lock;
  * <p>
  * Lock will be held during execution, but will not unlock and re-lock between immediate re-uses.
  */
-public class BlockDoerExecutorService extends AbstractExecutorService {
+class BlockDoerExecutorService extends AbstractExecutorService {
 
     private final BlockDoer doer;
     private AtomicBoolean shutdown = new AtomicBoolean();

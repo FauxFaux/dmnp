@@ -15,7 +15,7 @@ import static com.goeswhere.dmnp.util.FileUtils.writeFile;
  */
 public abstract class SimpleFileFixer extends FileFixer {
 
-    public static interface Creator {
+    protected static interface Creator {
         Function<String, String> create();
     }
 
@@ -37,11 +37,11 @@ public abstract class SimpleFileFixer extends FileFixer {
         });
     }
 
-    public static void main(String[] args, final Creator creator) throws InterruptedException {
+    protected static void main(String[] args, final Creator creator) throws InterruptedException {
         main(null, 0, args, creator);
     }
 
-    public static void main(String extra, int excount, String[] args, final Creator creator) throws InterruptedException {
+    private static void main(String extra, int excount, String[] args, final Creator creator) throws InterruptedException {
         if (excount + 1 != args.length && excount + 2 != args.length) {
 
             System.err.println("Usage: " +

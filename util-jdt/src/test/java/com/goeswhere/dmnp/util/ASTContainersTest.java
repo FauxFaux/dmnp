@@ -10,9 +10,9 @@ import static com.goeswhere.dmnp.util.ASTContainers.sharedParent;
 import static com.goeswhere.dmnp.util.ASTContainers.statements;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ASTContainersTest {
+class ASTContainersTest {
     @Test
-    public void sharedParentTrivialest() {
+    void sharedParentTrivialest() {
         final MethodDeclaration m = ASTWrapper.extractSingleMethod("void a() { int a; int b; }");
         final Block body = m.getBody();
         final List<Statement> sts = statements(body);
@@ -23,7 +23,7 @@ public class ASTContainersTest {
     }
 
     @Test
-    public void sharedParentDiff() {
+    void sharedParentDiff() {
         final MethodDeclaration m = ASTWrapper.extractSingleMethod("void a() { int a; if (7 == 9) { int b; } }");
         final Block body = m.getBody();
         final List<Statement> sts = statements(body);
@@ -35,7 +35,7 @@ public class ASTContainersTest {
     }
 
     @Test
-    public void statementsBetweenFlat() {
+    void statementsBetweenFlat() {
         final MethodDeclaration m = ASTWrapper.extractSingleMethod(
                 "void a() { " +
                         "int tis; int bar;" +

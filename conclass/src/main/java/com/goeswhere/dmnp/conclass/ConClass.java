@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class ConClass {
+class ConClass {
     public static void main(String[] args) throws InterruptedException, IOException {
         long start = System.nanoTime();
         System.out.println(go(args[0], args[1]));

@@ -5,9 +5,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class InlineRetTest {
+class InlineRetTest {
     @Test
-    public void testSimple() {
+    void testSimple() {
         assertIRsTo(
                 "class A { int foo() {" +
                         " int a = 5;" +
@@ -28,7 +28,7 @@ public class InlineRetTest {
     }
 
     @Test
-    public void testEliminateLocal() {
+    void testEliminateLocal() {
         assertIRsTo(
                 "class A { int foo() {" +
                         " if (null != A.class) {" +
@@ -49,7 +49,7 @@ public class InlineRetTest {
     }
 
     @Test
-    public void testEliminateSafeLocal() {
+    void testEliminateSafeLocal() {
         assertIRsTo(
                 "class A { int foo() {" +
                         " if (null != A.class) {" +
@@ -70,7 +70,7 @@ public class InlineRetTest {
     }
 
     @Test
-    public void testCantEliminateScaryLocal() {
+    void testCantEliminateScaryLocal() {
         assertIRsTo(
                 "class A { int foo() {" +
                         " int a = foo();" +
@@ -92,7 +92,7 @@ public class InlineRetTest {
     }
 
     @Test
-    public void testLeavePlusEquals() {
+    void testLeavePlusEquals() {
         final String src = "class A { int foo() {" +
                 " int a = 5;" +
                 " a += 5;" +

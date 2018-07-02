@@ -2,7 +2,7 @@ package com.goeswhere.dmnp.util;
 
 import java.util.Iterator;
 
-public class IterableIterator<T> implements Iterable<T> {
+class IterableIterator<T> implements Iterable<T> {
 
     private final Iterator<T> it;
 

@@ -37,13 +37,13 @@ import java.util.concurrent.TimeUnit;
 abstract class FileFixer implements Function<String, String> {
 
     private static ThreadPoolExecutor pool;
-    protected static boolean quiet;
+    private static boolean quiet;
 
-    protected static Iterable<File> fileOrFileList(final File f) {
+    static Iterable<File> fileOrFileList(final File f) {
         return f.isDirectory() ? FileUtils.javaFilesIn(f) : Collections.singletonList(f);
     }
 
-    protected synchronized static ExecutorService service() {
+    synchronized static ExecutorService service() {
         if (null != pool)
             throw new IllegalStateException("service() can only be used once");
 
@@ -53,16 +53,16 @@ abstract class FileFixer implements Function<String, String> {
                 new LinkedBlockingQueue<>());
     }
 
-    protected static void err(File file, Exception e) {
+    static void err(File file, Exception e) {
         System.err.println("While processing " + file + ": ");
         e.printStackTrace(System.err);
     }
 
-    protected static void proc(File file) {
+    static void proc(File file) {
         msg(file, "Starting");
     }
 
-    protected static void term(File file) {
+    static void term(File file) {
         msg(file, "Finished");
     }
 
@@ -89,7 +89,7 @@ abstract class FileFixer implements Function<String, String> {
             return "~" + num;
     }
 
-    protected static void quietIfQ(String[] args, final int qpos) {
+    static void quietIfQ(String[] args, final int qpos) {
         if (args.length > qpos && "-q".equals(args[qpos]))
             quiet = true;
     }

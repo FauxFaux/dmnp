@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class DumbParsing {
+class DumbParsing {
     @Nullable
     static String packageOf(File f) throws IOException {
         try (BufferedReader br = new BufferedReader(new FileReader(f))) {

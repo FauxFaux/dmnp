@@ -14,7 +14,7 @@ import java.util.concurrent.locks.Lock;
  */
 public class BlockDoer extends Thread implements Closeable {
     private final Lock wl;
-    final BlockingQueue<Runnable> queue;
+    private final BlockingQueue<Runnable> queue;
 
     private static class Shutdown extends RuntimeException {
         // nothing at all
@@ -24,7 +24,7 @@ public class BlockDoer extends Thread implements Closeable {
         throw new Shutdown();
     };
 
-    public BlockDoer(Lock wl, BlockingQueue<Runnable> queue) {
+    private BlockDoer(Lock wl, BlockingQueue<Runnable> queue) {
         this.wl = wl;
         this.queue = queue;
     }

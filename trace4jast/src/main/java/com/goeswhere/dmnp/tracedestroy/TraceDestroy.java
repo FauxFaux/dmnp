@@ -13,7 +13,7 @@ import java.util.Set;
 
 import static com.goeswhere.dmnp.util.ASTWrapper.rewrite;
 
-public class TraceDestroy extends SimpleFileFixer {
+class TraceDestroy extends SimpleFileFixer {
     public static void main(String[] args) throws InterruptedException {
         main(args, () -> new TraceDestroy());
     }

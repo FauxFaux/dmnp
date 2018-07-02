@@ -13,19 +13,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * Various utilities for converting source to one of the object representations.
  */
-public class ASTWrapperTest {
+class ASTWrapperTest {
     @Test
-    public void compile() {
+    void compile() {
         assertTopLevelTypeCalledC("class C { }");
     }
 
     @Test
-    public void compileEnum() {
+    void compileEnum() {
         assertTopLevelTypeCalledC("enum C { FOO, BAR }");
     }
 
     @Test
-    public void compileError() {
+    void compileError() {
         assertThrows(IllegalArgumentException.class, () ->
                 ASTWrapper.compile("class C {"));
     }
@@ -38,24 +38,24 @@ public class ASTWrapperTest {
 
 
     @Test
-    public void extractMethod() {
+    void extractMethod() {
         assertEquals("foo", ASTWrapper.extractSingleMethod("void foo() {}").getName().getIdentifier());
     }
 
     @Test
-    public void extractMethodNotThere() {
+    void extractMethodNotThere() {
 
         assertThrows(IllegalArgumentException.class, () ->
                 ASTWrapper.extractSingleMethod(""));
     }
 
     @Test
-    public void extractMethodTwo() {
+    void extractMethodTwo() {
         ASTWrapper.extractSingleMethod("void foo() {} void bar() {}");
     }
 
     @Test
-    public void signature() {
+    void signature() {
         final String nam = "private static Class<? extends Object> " +
                 "foo(String s, Integer a, Map<String,Long> m)";
         assertThrows(IllegalArgumentException.class, () -> assertEquals(nam, ASTWrapper.signature(ASTWrapper.extractSingleMethod(nam + " {}"))));

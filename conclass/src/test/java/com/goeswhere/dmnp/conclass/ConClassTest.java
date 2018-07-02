@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
-public class ConClassTest {
+class ConClassTest {
     private static final String CONST_CONTENTS = "class Const {" +
             " public static final int A = 65;" +
             " public static final int B = 66;" +
@@ -19,7 +19,7 @@ public class ConClassTest {
             "}";
 
     @Test
-    public void typical() throws IOException, FailedException, InterruptedException {
+    void typical() throws IOException, FailedException, InterruptedException {
         final File root = FileUtils.createTempDir();
         try {
             FileUtils.writeFile(new File(root, "Const.java"), CONST_CONTENTS);
@@ -46,7 +46,7 @@ public class ConClassTest {
     }
 
     @Test
-    public void noFiles() throws IOException, FailedException, InterruptedException {
+    void noFiles() throws IOException, FailedException, InterruptedException {
         final File root = FileUtils.createTempDir();
         try {
             assertThrows(IllegalArgumentException.class, () ->
@@ -57,7 +57,7 @@ public class ConClassTest {
     }
 
     @Test
-    public void tooManyFiles() throws IOException, FailedException, InterruptedException {
+    void tooManyFiles() throws IOException, FailedException, InterruptedException {
         final File root = FileUtils.createTempDir();
         try {
             FileUtils.writeFile(new File(root, "Left.java"), CONST_CONTENTS);

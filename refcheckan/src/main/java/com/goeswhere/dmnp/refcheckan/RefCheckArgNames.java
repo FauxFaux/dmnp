@@ -15,26 +15,26 @@ import java.util.concurrent.TimeUnit;
 
 import static com.goeswhere.dmnp.util.FileUtils.*;
 
-public class RefCheckArgNames {
+class RefCheckArgNames {
 
-    protected static String flatten(MethodInvocation node) {
+    private static String flatten(MethodInvocation node) {
         return node.getName().getIdentifier() + "#" + node.arguments().size();
     }
 
-    protected static String flatten(MethodDeclaration node) {
+    private static String flatten(MethodDeclaration node) {
         return node.getName().getIdentifier() + "#" + node.parameters().size();
     }
 
-    protected static String flatten(ClassInstanceCreation node) {
+    private static String flatten(ClassInstanceCreation node) {
         return node.getType().toString() + "#" + node.arguments().size();
     }
 
-    protected static String flatten(ConstructorInvocation node) {
+    private static String flatten(ConstructorInvocation node) {
         final MethodDeclaration callingMethod = (MethodDeclaration) node.getParent().getParent();
         return callingMethod.getName().getIdentifier() + "#" + node.arguments().size();
     }
 
-    protected static String flatten(SuperConstructorInvocation node) {
+    private static String flatten(SuperConstructorInvocation node) {
         final TypeDeclaration td = (TypeDeclaration) node.getParent().getParent().getParent();
         return String.valueOf(td.getSuperclassType()) + "#" + node.arguments().size();
     }

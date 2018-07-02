@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class DocCrap {
+class DocCrap {
     static String cleanCU(final String cus) {
         final CompilationUnit cu = ASTWrapper.compile(cus);
         cu.recordModifications();

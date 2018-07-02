@@ -12,10 +12,10 @@ import static com.goeswhere.dmnp.util.FJava.intersperse;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class FJavaTest {
+class FJavaTest {
 
     @Test
-    public void testCons() {
+    void testCons() {
         assertEquals(Collections.singletonList("5"), Lists.newArrayList(cons("5", Collections.emptyList())));
         assertEquals(asList("5", "7"), Lists.newArrayList(cons("5", Collections.singletonList("7"))));
         assertEquals(Arrays.asList("5", "6", "7"), Lists.newArrayList(cons("5", asList("6", "7"))));
@@ -23,13 +23,13 @@ public class FJavaTest {
     }
 
     @Test
-    public void testIntersperse() {
+    void testIntersperse() {
         assertEquals("a", intersperse(Collections.singletonList("a"), ","));
         assertEquals("a,b,c", intersperse(Arrays.asList("a", "b", "c"), ","));
     }
 
     @Test
-    public void testNRepeats() {
+    void testNRepeats() {
         assertEquals(Arrays.asList(1, 4, 4, 4, 4, 2, 2), Lists.newArrayList(
                 FJava.concatMap(Arrays.asList(1, 0, 4, 0, 2), from -> {
                     final List<Integer> ret = Lists.newArrayListWithCapacity(from);
@@ -41,14 +41,14 @@ public class FJavaTest {
 
 
     @Test
-    public void testReducer() {
+    void testReducer() {
         assertEquals(Arrays.asList('x', 'y', 'z', 'a', 'b', 'c'),
                 FJava.reducer('x', from -> {
                     switch (from) {
                         case 'x':
                             return Arrays.asList('y', 'z');
                         case 'z':
-                            return Arrays.asList('a');
+                            return Collections.singletonList('a');
                         case 'a':
                             return Arrays.asList('b', 'c');
                         default:

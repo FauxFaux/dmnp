@@ -32,6 +32,7 @@
                             <mainClass>com.goeswhere.dmnp.linenos.LineNos</mainClass>
                         </manifest>
                         <manifestEntries>
+                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
                             <Premain-Class>com.goeswhere.dmnp.linenos.LineNos</Premain-Class>
                         </manifestEntries>
                     </archive>
